@@ -13,3 +13,8 @@
 .p-card-content {
     padding: 0;
 }
+
+.p-tabmenu .p-tabmenu-nav .p-tabmenuitem .p-menuitem-link {
+    height: 48px;
+    border-radius: 0px;
+}
