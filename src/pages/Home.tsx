@@ -1,7 +1,7 @@
 // src/pages/Home.tsx
 import React, { useState } from 'react';
 import { TabView, TabPanel } from 'primereact/tabview';
-import CustomCard from '../components/CustomCard';
+import WebsiteCard from '../components/WebsiteCard';
 
 interface CategoryI {
     name: string;
@@ -34,7 +34,6 @@ const Home: React.FC = () => {
     ];
 
     const tabHeaderTemplate = (category: CategoryI) => <span><i className={`${category.icon} tab-icon mr-2`}></i>{category.name}</span>;
-
     return (
         <div className="card py-3 px-6">
             <TabView activeIndex={activeIndex} onTabChange={(e) => setActiveIndex(e.index)} scrollable>
@@ -43,7 +42,7 @@ const Home: React.FC = () => {
                         <div className="grid">
                             {category && category.websites && category?.websites.map((website, _index) => (
                                 <div className="col-2">
-                                    <CustomCard>{"hello"}</CustomCard>
+                                    <WebsiteCard title={website.name} description={website.description} />
                                 </div>
                             ))}
                         </div>
