@@ -1,6 +1,10 @@
 import React from 'react'
 
-const CustomCard: React.FC = ({ children }) => {
+interface CustomCardProps {
+    children: string
+}
+
+const CustomCard: React.FC<CustomCardProps> = ({ children }) => {
     return (
         <div className="custom-card h-10rem p-2 border-round-md shadow-1 bg-white relative">
             <div className="m-0 p-0 text-right info-icon">
