@@ -21,9 +21,12 @@ const WebsiteCard: React.FC<WebsiteCardProps> = ({ title, description }) => {
                     onMouseOut={handleMouseOut}
                 ></i>
             </div>
-            <p className="m-0 p-0 flex justify-content-center align-items-center absolute top-50 left-50 card-content text-base font-bold uppercase" style={{transform: 'translate(-50%, -50%)'}}>
-                {title}
-            </p>
+            <div className='flex flex-column align-items-center'>
+                <img alt="logo" src="https://primefaces.org/cdn/primereact/images/avatar/amyelsner.png" height="50" className="mr-2 mt-2"></img>
+                <p className="mt-4 p-0 text-base font-bold uppercase">
+                    {title}
+                </p>
+            </div>
             <OverlayPanel ref={op} className="min-w-100 max-w-25rem break-word">
                 <p>{description}</p>
             </OverlayPanel>
