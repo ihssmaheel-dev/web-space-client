@@ -5,3 +5,11 @@
 .p-menuitem-text {
     white-space: nowrap;
 }
+
+.p-card-body {
+    padding: 10px;
+}
+
+.p-card-content {
+    padding: 0;
+}
