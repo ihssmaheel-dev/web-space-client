@@ -1,6 +1,9 @@
 // src/pages/Home.tsx
-import React, { useState } from 'react';
-import { TabView, TabPanel } from 'primereact/tabview';
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { TabMenu } from 'primereact/tabmenu';
+import { MenuItem } from 'primereact/menuitem';
+import { Button } from 'primereact/button';
 import WebsiteCard from '../components/WebsiteCard';
 
 interface CategoryI {
@@ -17,48 +20,125 @@ interface WebsiteI {
 }
 
 const Home: React.FC = () => {
-    const [activeIndex, setActiveIndex] = useState<number>(0);
+    const { tab } = useParams<{ tab?: string }>();
+    const navigate = useNavigate();
+    const [activeIndex, setActiveIndex] = useState(0);
 
     const categories: CategoryI[] = [
         {
-            name: 'Tab 1', 
-            icon: 'pi pi-fw pi-home', 
+            name: 'Technology',
+            icon: 'pi pi-fw pi-desktop',
             websites: [
-                { name: "google", description: "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Error numquam voluptate magnam saepe enim! Nesciunt provident in dolore ipsa praesentium!", link: "www.google.com" },
-                { name: "youtube", description: "youtube", link: "www.youtube.com" }
+                { name: "TechCrunch", description: "Tech news", link: "https://techcrunch.com" },
+                { name: "The Verge", description: "Tech reviews", link: "https://www.theverge.com" }
             ]
         },
-        { name: 'Tab 2', icon: 'pi pi-fw pi-calendar' },
-        { name: 'Tab 3', icon: 'pi pi-fw pi-pencil' },
-        { name: 'Tab 4', icon: 'pi pi-fw pi-file' },
-        { name: 'Tab 5', icon: 'pi pi-fw pi-cog' },
-        { name: 'Tab 6', icon: 'pi pi-fw pi-star' },
-        { name: 'Tab 7', icon: 'pi pi-fw pi-user' },
-        { name: 'Tab 8', icon: 'pi pi-fw pi-heart' }
+        {
+            name: 'Sports',
+            icon: 'pi pi-fw pi-football',
+            websites: [
+                { name: "ESPN", description: "Sports news", link: "https://www.espn.com" },
+                { name: "NFL.com", description: "NFL news", link: "https://www.nfl.com" }
+            ]
+        },
+        {
+            name: 'Cooking',
+            icon: 'pi pi-fw pi-utensils',
+            websites: [
+                { name: "AllRecipes", description: "Recipes", link: "https://www.allrecipes.com" },
+                { name: "Serious Eats", description: "Food culture", link: "https://www.seriouseats.com" }
+            ]
+        },
+        {
+            name: 'Finance',
+            icon: 'pi pi-fw pi-money-bill',
+            websites: [
+                { name: "Bloomberg", description: "Financial news", link: "https://www.bloomberg.com" },
+                { name: "Yahoo Finance", description: "Stock market info", link: "https://finance.yahoo.com" }
+            ]
+        },
+        {
+            name: 'Travel',
+            icon: 'pi pi-fw pi-globe',
+            websites: [
+                { name: "Lonely Planet", description: "Travel guides", link: "https://www.lonelyplanet.com" },
+                { name: "TripAdvisor", description: "Travel reviews", link: "https://www.tripadvisor.com" }
+            ]
+        },
+        {
+            name: 'Health',
+            icon: 'pi pi-fw pi-heart',
+            websites: [
+                { name: "WebMD", description: "Health advice", link: "https://www.webmd.com" },
+                { name: "Healthline", description: "Medical information", link: "https://www.healthline.com" }
+            ]
+        },
+        {
+            name: 'Entertainment',
+            icon: 'pi pi-fw pi-video',
+            websites: [
+                { name: "IMDb", description: "Movie database", link: "https://www.imdb.com" },
+                { name: "Variety", description: "Entertainment news", link: "https://variety.com" }
+            ]
+        },
+        {
+            name: 'News',
+            icon: 'pi pi-fw pi-newspaper',
+            websites: [
+                { name: "BBC News", description: "World news", link: "https://www.bbc.com/news" },
+                { name: "CNN", description: "Breaking news", link: "https://www.cnn.com" }
+            ]
+        },
+        {
+            name: 'Education',
+            icon: 'pi pi-fw pi-graduation-cap',
+            websites: [
+                { name: "Khan Academy", description: "Online education", link: "https://www.khanacademy.org" },
+                { name: "Coursera", description: "Online courses", link: "https://www.coursera.org" }
+            ]
+        },
+        {
+            name: 'Shopping',
+            icon: 'pi pi-fw pi-shopping-cart',
+            websites: [
+                { name: "Amazon", description: "Online shopping", link: "https://www.amazon.com" },
+                { name: "Etsy", description: "Handmade goods", link: "https://www.etsy.com" }
+            ]
+        }
     ];
+    
 
-    const tabHeaderTemplate = (category: CategoryI) => (
-        <span>
-            <i className={`${category.icon} tab-icon mr-2`}></i>
-            {category.name}
-        </span>
-    );
+    const items: MenuItem[] = categories.map((category, index) => ({
+        label: category.name,
+        icon: category.icon,
+        command: () => navigate(`/home/category/${index + 1}`)
+    }));
+
+    useEffect(() => {
+        const tabIndex = tab ? parseInt(tab) - 1 : 0;
+        if (tabIndex >= 0 && tabIndex < categories.length) {
+            setActiveIndex(tabIndex);
+        } else {
+            navigate(`/home/category/1`);
+        }
+    }, [tab, categories.length, navigate]);
 
     return (
         <div className="card py-3 px-6">
-            <TabView activeIndex={activeIndex} onTabChange={(e) => setActiveIndex(e.index)} scrollable>
-                {categories.map((category, index) => (
-                    <TabPanel key={index} header={tabHeaderTemplate(category)} className="pt-3">
-                        <div className="grid">
-                            {category.websites?.map((website, idx) => (
-                                <div key={idx} className="col-2">
-                                    <WebsiteCard title={website.name} description={website.description} />
-                                </div>
-                            ))}
-                        </div>
-                    </TabPanel>
+            <div className="flex justify-content-between align-items-center">
+                <TabMenu model={items} activeIndex={activeIndex} />
+                <div className="flex align-items-center ml-2">
+                    <Button icon="pi pi-plus" className="p-button-rounded p-button-secondary mr-2" />
+                    <Button icon="pi pi-external-link" className="p-button-rounded p-button-secondary" />
+                </div>
+            </div>
+            <div className="grid pt-4">
+                {categories[activeIndex]?.websites?.map((website, idx) => (
+                    <div key={idx} className="col-2">
+                        <WebsiteCard title={website.name} description={website.description} />
+                    </div>
                 ))}
-            </TabView>
+            </div>
         </div>
     );
 };
