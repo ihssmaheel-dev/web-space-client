@@ -1,4 +1,3 @@
-// src/pages/Home.tsx
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { TabMenu } from 'primereact/tabmenu';
@@ -124,12 +123,12 @@ const Home: React.FC = () => {
     }, [tab, categories.length, navigate]);
 
     return (
-        <div className="card py-3 px-6">
+        <div className="card py-4 px-4">
             <div className="flex justify-content-between align-items-center">
                 <TabMenu model={items} activeIndex={activeIndex} />
-                <div className="flex align-items-center ml-2">
-                    <Button icon="pi pi-plus" className="p-button-rounded p-button-secondary mr-2" />
-                    <Button icon="pi pi-external-link" className="p-button-rounded p-button-secondary" />
+                <div className="flex align-items-center ml-3">
+                    <Button icon="pi pi-plus" className="p-button-primary mr-2" />
+                    <Button icon="pi pi-external-link" className="p-button-primary" />
                 </div>
             </div>
             <div className="grid pt-4">
