@@ -3,51 +3,110 @@ import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
-import { Dropdown, DropdownProps } from 'primereact/dropdown';
 import { icons } from "../utils/icons";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
 import IconDropdown from "./IconDropdown";
+
+interface CategoryI {
+    no: number;
+    name: string;
+    icon: string;
+    websites?: WebsiteI[];
+}
+
+type ImageType = "icon" | "image";
+
+interface WebsiteI {
+    no: number;
+    name: string;
+    image?: string;
+    imageType?: ImageType;
+    description: string;
+    link: string;
+}
 
 interface AddCategoryModalProps {
     visible: boolean;
     setVisible: React.Dispatch<React.SetStateAction<boolean>>;
+    categoriesLength: number;
+    onAddCategory: (category: CategoryI) => void;
 }
 
-const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ visible, setVisible }) => {
-    const [categoryName, setCategoryName] = useState('');
-    const [categoryIcon, setCategoryIcon] = useState('');
-    const [description, setDescription] = useState('');
+const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ visible, setVisible, categoriesLength, onAddCategory }) => {
+    const initialValues = {
+        categoryName : "",
+        categoryIcon: "",
+        description: ""
+    };
+
+    const validationSchema = Yup.object({
+        categoryName: Yup.string()
+                .required("Category name is required")
+                .matches(/^[a-zA-Z0-9 ]*$/, "Category name cannot contain special characters"),
+        description: Yup.string()
+                .test(
+                    'maxWords',
+                    'Description cannot exceed 30 words',
+                    value => !value || value.split(' ').filter(word => word).length <= 30
+                ),
+    });
+
     
-    const handleSubmit = () => {
-        console.log("category name: ", categoryName);
-        console.log("category icon: ", categoryIcon);
-        console.log("description: ", description);
+    const handleSubmit = (values: any, { resetForm }: { resetForm: () => void }) => {
+        const newCategory = {
+            no: categoriesLength,
+            name: values.categoryName,
+            icon: values.categoryIcon || "pi pi-stop",
+            description: values.description,
+            websites: []
+        }
+
+        onAddCategory(newCategory);
+        setVisible(false);
+        resetForm();
     }
 
     return (
         <div>
             <Dialog visible={visible} style={{ width: '46vw' }} onHide={() => setVisible(false)} header="Add Category">
-                <form action="#">
-                    <div className="mb-5">
-                        <div className="grid mb-2">
-                            <div className="flex flex-column gap-2 col-6">
-                                <label htmlFor="categoryName">Category name</label>
-                                <InputText id="categoryName" value={categoryName} onChange={(e) => setCategoryName(e.target.value)}/>
+                <Formik 
+                    initialValues={initialValues}
+                    validationSchema={validationSchema}
+                    onSubmit={handleSubmit}
+                >
+                    {({ setFieldValue }) => (
+                        <Form>
+                            <div className="mb-5">
+                                <div className="grid mb-2">
+                                    <div className="flex flex-column gap-2 col-6">
+                                        <label htmlFor="categoryName">Category name <span className="text-red-200">*</span></label>
+                                        <Field id="categoryName" name="categoryName" as={InputText}/>
+                                        <ErrorMessage name="categoryName" component="small" className="p-error ml-1" />
+                                    </div>
+                                    <div className="flex flex-column gap-2 col-6">
+                                        <label htmlFor="categoryIcon">Category Icon</label>
+                                        <IconDropdown 
+                                            value=""
+                                            onChange={(value: string) => setFieldValue('categoryIcon', value)}
+                                            icons={icons}
+                                        />
+                                        <ErrorMessage name="categoryIcon" component="small" className="p-error ml-1" />
+                                    </div>
+                                </div>
+                                <div className="flex flex-column gap-2">
+                                    <label htmlFor="description">Description</label>
+                                    <Field id="description" name="description" as={InputTextarea} rows={3}/>
+                                    <ErrorMessage name="description" component="small" className="p-error ml-1"/>
+                                </div>
                             </div>
-                            <div className="flex flex-column gap-2 col-6">
-                                <label htmlFor="categoryIcon">Category Icon</label>
-                                <IconDropdown value={categoryIcon} onChange={setCategoryIcon} icons={icons}/>
+                            <div className="p-mt-4">
+                                <Button label="Submit" icon="pi pi-check" className="mr-2" type="submit"/>
+                                <Button label="Cancel" icon="pi pi-times" className="p-button-secondary p-ml-2" onClick={() => setVisible(false)} />
                             </div>
-                        </div>
-                        <div className="flex flex-column gap-2">
-                            <label htmlFor="description">Description</label>
-                            <InputTextarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} rows={3} />
-                        </div>
-                    </div>
-                    <div className="p-mt-4">
-                        <Button label="Submit" icon="pi pi-check" onClick={handleSubmit} className="mr-2"/>
-                        <Button label="Cancel" icon="pi pi-times" className="p-button-secondary p-ml-2" onClick={() => setVisible(false)} />
-                    </div>
-                </form>
+                        </Form>
+                    )}
+                </Formik>
             </Dialog>
         </div>
     )
