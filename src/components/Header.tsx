@@ -22,7 +22,7 @@ const Header: React.FC = () => {
         },
         {
             label: 'Manage',
-            icon: 'pi pi-pencil',
+            icon: 'pi pi-pen-to-square',
             className: `ml-4 ${location.pathname.startsWith("/manage") ? "p-focus" : ""}`,
             template: (item, options) => (
                 <NavLink to="/manage" className={`p-menuitem-link ${location.pathname.startsWith("/manage") ? "p-focus" : ""}`}>
