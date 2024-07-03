@@ -4,6 +4,7 @@ import { TabMenu } from 'primereact/tabmenu';
 import { MenuItem } from 'primereact/menuitem';
 import { Button } from 'primereact/button';
 import WebsiteCard from '../components/WebsiteCard';
+import AddCategoryModal from '../components/AddCategoryModal';
 
 interface CategoryI {
     name: string;
@@ -25,6 +26,7 @@ const Home: React.FC = () => {
     const { tab } = useParams<{ tab?: string }>();
     const navigate = useNavigate();
     const [activeIndex, setActiveIndex] = useState(0);
+    const [visible, setVisible] = useState(false);
 
     const categories: CategoryI[] = [
         {
@@ -58,10 +60,13 @@ const Home: React.FC = () => {
             <div className="flex justify-content-between align-items-center">
                 <TabMenu model={items} activeIndex={activeIndex} />
                 <div className="flex align-items-center ml-3">
-                    <Button icon="pi pi-plus" className="p-button-primary mr-2" />
+                    <Button icon="pi pi-plus" className="p-button-primary mr-2" onClick={() => setVisible(true)}/>
                     <Button icon="pi pi-external-link" className="p-button-primary" />
                 </div>
             </div>
+            
+            <AddCategoryModal visible={visible} setVisible={setVisible}/>
+
             <div className="grid pt-4">
                 <div className="col-2">
                     <WebsiteCard title={"asd"} description={"ad"} />
