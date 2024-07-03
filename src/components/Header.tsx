@@ -8,28 +8,27 @@ const Header: React.FC = () => {
     const { theme, toggleTheme } = useTheme();
     const location = useLocation();
 
+    const renderNavLink = (label: string, icon: string, to: string) => {
+        return (
+            <NavLink to={to} className='p-menuitem-link'>
+                <span className={icon}></span>
+                <span className="p-menuitem-text">{label}</span>
+            </NavLink>
+        )
+    }
+
     const items: MenuItem[] = [
         {
             label: 'Home',
             icon: 'pi pi-home',
             className: `ml-4 ${location.pathname.startsWith("/home") ? "p-focus" : ""}`,
-            template: (item, options) => (
-                <NavLink to="/" className={`p-menuitem-link ${location.pathname.startsWith("/home") ? "p-focus" : ""}`}>
-                    <span className={options.iconClassName}></span>
-                    <span className="p-menuitem-text">{item.label}</span>
-                </NavLink>
-            )
+            template: (item, options) => renderNavLink(item.label!, options.iconClassName, "/")
         },
         {
             label: 'Manage',
             icon: 'pi pi-pen-to-square',
             className: `ml-2 ${location.pathname.startsWith("/manage") ? "p-focus" : ""}`,
-            template: (item, options) => (
-                <NavLink to="/manage" className={`p-menuitem-link ${location.pathname.startsWith("/manage") ? "p-focus" : ""}`}>
-                    <span className={options.iconClassName}></span>
-                    <span className="p-menuitem-text">{item.label}</span>
-                </NavLink>
-            )
+            template: (item, options) => renderNavLink(item.label!, options.iconClassName, "/manage")
         },
     ];
 
