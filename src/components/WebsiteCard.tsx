@@ -8,18 +8,24 @@ type ImageType = "icon" | "image";
 interface WebsiteCardProps {
     title: string;
     description: string;
+    link: string;
     imageUrl?: string;
     imageType?: ImageType;  
 }
 
-const WebsiteCard: React.FC<WebsiteCardProps> = ({ title, description, imageUrl, imageType }) => {
+const WebsiteCard: React.FC<WebsiteCardProps> = ({ title, description, link, imageUrl, imageType }) => {
     const op = useRef<OverlayPanel>(null);
 
     const handleMouseEnter = (e: React.MouseEvent) => op.current?.show(e, e.currentTarget);
     const handleMouseLeave = () => op.current?.hide();
 
+    const handleClick = (e: React.MouseEvent) => {
+        e.preventDefault();
+        window.open(link, "_blank");
+    }
+
     return (
-        <Card className="h-10rem cursor-pointer shadow-2 hover:shadow-8 transition-all transition-duration-300">
+        <Card className="h-10rem cursor-pointer shadow-2 hover:shadow-8 transition-all transition-duration-300" onClick={handleClick}>
             <div className="flex flex-column h-full">
                 <div className="text-right mb-2">
                     <i 
