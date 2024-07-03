@@ -11,9 +11,12 @@ interface CategoryI {
     websites?: WebsiteI[];
 }
 
+type ImageType = "icon" | "image";
+
 interface WebsiteI {
     name: string;
-    icon?: string;
+    image?: string;
+    imageType?: ImageType;
     description: string;
     link: string;
 }
@@ -28,7 +31,7 @@ const Home: React.FC = () => {
             name: 'Category',
             icon: 'pi pi-fw pi-stop',
             websites: [
-                { name: "TechCrunch", description: "Tech news", link: "https://techcrunch.com" },
+                { name: "TechCrunch", description: "Tech news", image: "", imageType:"icon", link: "https://techcrunch.com" },
                 { name: "The Verge", description: "Tech reviews", link: "https://www.theverge.com" }
             ]
         }
@@ -60,9 +63,12 @@ const Home: React.FC = () => {
                 </div>
             </div>
             <div className="grid pt-4">
+                <div className="col-2">
+                    <WebsiteCard title={"asd"} description={"ad"} />
+                </div>
                 {categories[activeIndex]?.websites?.map((website, idx) => (
                     <div key={idx} className="col-2">
-                        <WebsiteCard title={website.name} description={website.description} />
+                        <WebsiteCard title={website.name} description={website.description} imageUrl={website.image} imageType={website.imageType} />
                     </div>
                 ))}
             </div>
