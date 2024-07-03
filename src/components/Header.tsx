@@ -1,11 +1,12 @@
 import React, { useContext } from 'react';
 import { Menubar } from 'primereact/menubar';
 import { MenuItem } from 'primereact/menuitem';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { ThemeContext } from '../contexts/ThemeContexts';
 
 const Header: React.FC = () => {
     const themeContext = useContext(ThemeContext);
+    const location = useLocation();
 
     if (!themeContext) {
         throw new Error("ThemeContext must be used within a ThemeProvider");
@@ -17,9 +18,9 @@ const Header: React.FC = () => {
         {
             label: 'Home',
             icon: 'pi pi-home',
-            className: 'ml-4',
+            className: `ml-4 ${location.pathname.startsWith("/home") ? "p-focus" : ""}`,
             template: (item, options) => (
-                <NavLink to="/" className={({ isActive }) => isActive ? 'p-menuitem-link p-menuitem-link-active' : 'p-menuitem-link'}>
+                <NavLink to="/" className={`p-menuitem-link ${location.pathname.startsWith("/home") ? "p-focus" : ""}`}>
                     <span className={options.iconClassName}></span>
                     <span className="p-menuitem-text">{item.label}</span>
                 </NavLink>
@@ -28,9 +29,9 @@ const Header: React.FC = () => {
         {
             label: 'Manage',
             icon: 'pi pi-pencil',
-            className: 'ml-4',
+            className: `ml-4 ${location.pathname.startsWith("/manage") ? "p-focus" : ""}`,
             template: (item, options) => (
-                <NavLink to="/manage" className={({ isActive }) => isActive ? 'p-menuitem-link p-menuitem-link-active' : 'p-menuitem-link'}>
+                <NavLink to="/manage" className={`p-menuitem-link ${location.pathname.startsWith("/manage") ? "p-focus" : ""}`}>
                     <span className={options.iconClassName}></span>
                     <span className="p-menuitem-text">{item.label}</span>
                 </NavLink>
