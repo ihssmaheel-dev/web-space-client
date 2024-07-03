@@ -20,6 +20,12 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 ? '/themes/lara-light-blue/theme.css'
                 : '/themes/lara-dark-blue/theme.css';
         }
+
+        const body = document.getElementById("body") as HTMLBodyElement;
+        if(body) {
+            body.classList.add(newTheme === 'theme-light' ? 'bg-gray-100' : 'bg-gray-900');
+            body.classList.remove(newTheme === 'theme-light' ? 'bg-gray-900' : 'bg-gray-100');
+        }
     };
 
     return (
