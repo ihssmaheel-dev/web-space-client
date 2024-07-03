@@ -10,6 +10,7 @@ import IconDropdown from "./IconDropdown";
 
 interface CategoryI {
     no: number;
+    id: number;
     name: string;
     icon: string;
     websites?: WebsiteI[];
@@ -56,6 +57,7 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ visible, setVisible
     const handleSubmit = (values: any, { resetForm }: { resetForm: () => void }) => {
         const newCategory = {
             no: categoriesLength,
+            id: Date.now(),
             name: values.categoryName,
             icon: values.categoryIcon || "pi pi-stop",
             description: values.description,

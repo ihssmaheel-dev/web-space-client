@@ -10,6 +10,7 @@ import useLocalStorage from '../hooks/useLocalStorage';
 
 interface CategoryI {
     no: number;
+    id: number;
     name: string;
     icon: string;
     websites?: WebsiteI[];
@@ -35,6 +36,7 @@ const Home: React.FC = () => {
     const categoriesObj: CategoryI[] = [
         {
             no: 0,
+            id: Date.now(),
             name: 'Favorites',
             icon: 'pi pi-heart',
             websites: [
