@@ -11,7 +11,7 @@ const App: React.FC = () => {
 
 	return (
 		<Router>
-			<div className={`${theme === 'theme-light' ? 'bg-gray-100' : 'bg-gray-900'} h-screen`}>
+			<div className={`${theme === 'theme-light' ? 'bg-gray-100' : 'bg-gray-900'}`}>
 				<Header />
 				<Routes>
 					<Route path="/" element={<Navigate to="/home/category/1" replace />}/>
