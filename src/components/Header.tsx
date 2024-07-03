@@ -1,18 +1,12 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { Menubar } from 'primereact/menubar';
 import { MenuItem } from 'primereact/menuitem';
 import { NavLink, useLocation } from 'react-router-dom';
-import { ThemeContext } from '../contexts/ThemeContexts';
+import useTheme from '../hooks/useTheme';
 
 const Header: React.FC = () => {
-    const themeContext = useContext(ThemeContext);
+    const { theme, toggleTheme } = useTheme();
     const location = useLocation();
-
-    if (!themeContext) {
-        throw new Error("ThemeContext must be used within a ThemeProvider");
-    }
-
-    const { theme, toggleTheme } = themeContext;
 
     const items: MenuItem[] = [
         {
