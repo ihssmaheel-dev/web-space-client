@@ -4,16 +4,10 @@ import Header from "./components/Header";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Home from "./pages/Home";
 import Manage from "./pages/Manage";
-import { ThemeContext } from "./contexts/ThemeContexts";
+import useTheme from "./hooks/useTheme";
 
 const App: React.FC = () => {
-	const themeContext = useContext(ThemeContext);
-
-    if (!themeContext) {
-        throw new Error("ThemeContext must be used within a ThemeProvider");
-    }
-
-    const { theme } = themeContext;
+    const { theme } = useTheme();
 
 	return (
 		<Router>
@@ -26,7 +20,6 @@ const App: React.FC = () => {
 				</Routes>
 			</div>	
 		</Router>
-
 	);
 }
 
