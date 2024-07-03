@@ -14,9 +14,7 @@ const ImageComponent: React.FC<ImageProps> = ({ image, imageType }) => {
 
     return (
         <div className="mb-3 border-circle" style={{ height: "50px", maxWidth: "50px" }}>
-            {imageType === 'icon' ? (
-                <i className={`pi ${image || defaultIcon}`} style={{fontSize: "50px"}}></i>
-            ) : (
+            {imageType === 'image' ? (
                 <img 
                     src={image || defaultImage} 
                     style={{ objectFit: 'contain', height: '100%', width: '100%' }} 
@@ -24,6 +22,8 @@ const ImageComponent: React.FC<ImageProps> = ({ image, imageType }) => {
                     className="border-circle shadow-2"  
                     alt="Content" 
                 />
+            ) : (
+                <i className={`pi ${image || defaultIcon}`} style={{fontSize: "50px"}}></i>
             )}
         </div>
     );
