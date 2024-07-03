@@ -1,13 +1,18 @@
 import React, { useRef } from 'react';
 import { OverlayPanel } from 'primereact/overlaypanel';
 import { Card } from 'primereact/card';
+import ImageComponent from './ImageComponent';
+
+type ImageType = "icon" | "image";
 
 interface WebsiteCardProps {
     title: string;
     description: string;
+    imageUrl?: string;
+    imageType?: ImageType;  
 }
 
-const WebsiteCard: React.FC<WebsiteCardProps> = ({ title, description }) => {
+const WebsiteCard: React.FC<WebsiteCardProps> = ({ title, description, imageUrl, imageType }) => {
     const op = useRef<OverlayPanel>(null);
 
     const handleMouseEnter = (e: React.MouseEvent) => op.current?.show(e, e.currentTarget);
@@ -24,12 +29,7 @@ const WebsiteCard: React.FC<WebsiteCardProps> = ({ title, description }) => {
                     ></i>
                 </div>
                 <div className='flex-grow-1 flex flex-column align-items-center justify-content-center'>
-                    <img 
-                        alt={`${title} logo`} 
-                        src="https://primefaces.org/cdn/primereact/images/avatar/amyelsner.png"
-                        height="50" 
-                        className="mb-3 border-circle shadow-2"
-                    />
+                    <ImageComponent image={imageUrl} imageType={imageType}/>
                     <p className="m-0 text-center font-bold text-900 uppercase text-overflow-ellipsis overflow-hidden white-space-nowrap w-full px-2">
                         {title}
                     </p>
