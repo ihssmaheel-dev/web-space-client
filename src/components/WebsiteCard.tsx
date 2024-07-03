@@ -23,24 +23,28 @@ const WebsiteCard: React.FC<WebsiteCardProps> = ({ title, description, imageUrl,
             <div className="flex flex-column h-full">
                 <div className="text-right mb-2">
                     <i 
-                        className="pi pi-info-circle text-500 hover:text-primary cursor-pointer transition-colors transition-duration-300"
+                        className={`pi ${description && "pi-info-circle"} text-500 hover:text-primary cursor-pointer transition-colors transition-duration-300`}
                         onMouseEnter={handleMouseEnter}
                         onMouseLeave={handleMouseLeave}
                     ></i>
                 </div>
                 <div className='flex-grow-1 flex flex-column align-items-center justify-content-center'>
                     <ImageComponent image={imageUrl} imageType={imageType}/>
-                    <p className="m-0 text-center font-bold text-900 uppercase text-overflow-ellipsis overflow-hidden white-space-nowrap w-full px-2">
+                    <p className="m-0 text-center font-semibold uppercase text-overflow-ellipsis overflow-hidden white-space-nowrap w-full px-2 mt-2">
                         {title}
                     </p>
                 </div>
             </div>
-            <OverlayPanel 
-                ref={op} 
-                className="min-w-max max-w-20rem shadow-5"
-            >
-                <p className="m-0 line-height-3 text-700">{description}</p>
-            </OverlayPanel>
+            {
+                description && (
+                    <OverlayPanel 
+                        ref={op} 
+                        className="min-w-max max-w-20rem shadow-5"
+                    >
+                        <p className="m-0 line-height-3 text-700">{description}</p>
+                    </OverlayPanel>
+                )
+            }
         </Card>
     )
 }
