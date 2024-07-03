@@ -5,6 +5,7 @@ import { MenuItem } from 'primereact/menuitem';
 import { Button } from 'primereact/button';
 import WebsiteCard from '../components/WebsiteCard';
 import AddCategoryModal from '../components/AddCategoryModal';
+import AddCard from '../components/AddCard';
 
 interface CategoryI {
     name: string;
@@ -30,10 +31,10 @@ const Home: React.FC = () => {
 
     const categories: CategoryI[] = [
         {
-            name: 'Category',
-            icon: 'pi pi-fw pi-stop',
+            name: 'Favorites',
+            icon: 'pi pi-fw pi-heart',
             websites: [
-                { name: "TechCrunch", description: "Tech news", image: "", imageType:"icon", link: "https://techcrunch.com" },
+                { name: "TechCrunch", description: "", image: "", imageType:"icon", link: "https://techcrunch.com" },
                 { name: "The Verge", description: "Tech reviews", link: "https://www.theverge.com" }
             ]
         }
@@ -69,7 +70,7 @@ const Home: React.FC = () => {
 
             <div className="grid pt-4">
                 <div className="col-2">
-                    <WebsiteCard title={"asd"} description={"ad"} />
+                    <AddCard />
                 </div>
                 {categories[activeIndex]?.websites?.map((website, idx) => (
                     <div key={idx} className="col-2">
