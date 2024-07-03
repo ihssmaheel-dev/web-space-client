@@ -20,6 +20,7 @@ type ImageType = "icon" | "image";
 
 interface WebsiteI {
     no: number;
+    id: number;
     name: string;
     image?: string;
     imageType?: ImageType;

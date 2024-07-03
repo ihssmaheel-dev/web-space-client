@@ -20,6 +20,7 @@ type ImageType = "icon" | "image";
 
 interface WebsiteI {
     no: number;
+    id: number;
     name: string;
     image?: string;
     imageType?: ImageType;
@@ -40,9 +41,9 @@ const Home: React.FC = () => {
             name: 'Favorites',
             icon: 'pi pi-heart',
             websites: [
-                { no: 0, name: "youtube", description: "", image: "pi-youtube", imageType: "icon", link: "https://youtube.com" },
-                { no: 1, name: "google", description: "", image: "pi-google", imageType: "icon", link: "https://google.com" },
-                { no: 1, name: "chatgpt", description: "", image: "https://cdn.oaistatic.com/_next/static/media/favicon-32x32.630a2b99.png", imageType: "image", link: "https://chatgpt.com" },
+                { no: 0, id: Date.now(), name: "youtube", description: "", image: "pi-youtube", imageType: "icon", link: "https://youtube.com" },
+                { no: 1, id: Date.now(), name: "google", description: "", image: "pi-google", imageType: "icon", link: "https://google.com" },
+                { no: 2, id: Date.now(), name: "chatgpt", description: "", image: "https://cdn.oaistatic.com/_next/static/media/favicon-32x32.630a2b99.png", imageType: "image", link: "https://chatgpt.com" },
             ]
         }
     ];
