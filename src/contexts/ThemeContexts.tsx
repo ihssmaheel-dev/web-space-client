@@ -1,6 +1,6 @@
 import React, { createContext, useState, ReactNode } from 'react';
 
-interface ThemeContextType {
+export interface ThemeContextType {
     theme: string;
     toggleTheme: () => void;
 }
@@ -12,8 +12,6 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
     const toggleTheme = () => {
         const newTheme = theme === 'theme-light' ? 'theme-dark' : 'theme-light';
-        console.log(newTheme);
-        
         setTheme(newTheme);
 
         const link = document.getElementById('app-theme') as HTMLLinkElement;
