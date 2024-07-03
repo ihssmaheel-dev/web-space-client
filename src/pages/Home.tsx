@@ -6,8 +6,10 @@ import { Button } from 'primereact/button';
 import WebsiteCard from '../components/WebsiteCard';
 import AddCategoryModal from '../components/AddCategoryModal';
 import AddCard from '../components/AddCard';
+import useLocalStorage from '../hooks/useLocalStorage';
 
 interface CategoryI {
+    no: number;
     name: string;
     icon: string;
     websites?: WebsiteI[];
@@ -16,6 +18,7 @@ interface CategoryI {
 type ImageType = "icon" | "image";
 
 interface WebsiteI {
+    no: number;
     name: string;
     image?: string;
     imageType?: ImageType;
@@ -28,24 +31,47 @@ const Home: React.FC = () => {
     const navigate = useNavigate();
     const [activeIndex, setActiveIndex] = useState(0);
     const [visible, setVisible] = useState(false);
-
-    const categories: CategoryI[] = [
+    
+    const categoriesObj: CategoryI[] = [
         {
+            no: 0,
             name: 'Favorites',
-            icon: 'pi pi-fw pi-heart',
+            icon: 'pi pi-heart',
             websites: [
-                { name: "TechCrunch", description: "", image: "", imageType:"icon", link: "https://techcrunch.com" },
-                { name: "The Verge", description: "Tech reviews", link: "https://www.theverge.com" }
+                { no: 0, name: "youtube", description: "", image: "pi-youtube", imageType: "icon", link: "https://youtube.com" },
+                { no: 1, name: "google", description: "", image: "pi-google", imageType: "icon", link: "https://google.com" },
+                { no: 1, name: "chatgpt", description: "", image: "https://cdn.oaistatic.com/_next/static/media/favicon-32x32.630a2b99.png", imageType: "image", link: "https://chatgpt.com" },
             ]
         }
     ];
-    
+
+    const [categories, setCategories] = useLocalStorage<CategoryI[]>("categories", categoriesObj);
 
     const items: MenuItem[] = categories.map((category, index) => ({
         label: category.name,
-        icon: category.icon,
+        icon: `pi ${category.icon}`,
         command: () => navigate(`/home/category/${index + 1}`)
     }));
+
+    const handleAddCategory = (newCategory: CategoryI) => {
+        setCategories(prevCategories => [...prevCategories, newCategory]);
+    };
+
+    const handleOpenAll = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        e.preventDefault();
+    
+        const index = tab ? parseInt(tab) - 1 : undefined;
+    
+        if (typeof index === "number" && categories[index]?.websites) {
+            const websites = categories[index].websites;
+            websites?.forEach(website => {
+                console.log(website.link);
+                window.open(website.link, "_blank");
+            });
+        } else {
+            console.error(`Invalid tab index or missing websites for tab index ${index}`);
+        }
+    }
 
     useEffect(() => {
         const tabIndex = tab ? parseInt(tab) - 1 : 0;
@@ -54,19 +80,19 @@ const Home: React.FC = () => {
         } else {
             navigate(`/home/category/1`);
         }
-    }, [tab, categories.length, navigate]);
+    }, [tab, categories]);
 
     return (
         <div className="card py-4 px-4">
             <div className="flex justify-content-between align-items-center">
-                <TabMenu model={items} activeIndex={activeIndex} />
+                <TabMenu model={items} activeIndex={activeIndex} onTabChange={(e) => setActiveIndex(e.index)} />
                 <div className="flex align-items-center ml-3">
                     <Button icon="pi pi-plus" className="p-button-primary mr-2" onClick={() => setVisible(true)}/>
-                    <Button icon="pi pi-external-link" className="p-button-primary" />
+                    <Button icon="pi pi-external-link" className="p-button-primary" onClick={(e) => handleOpenAll(e)}/>
                 </div>
             </div>
             
-            <AddCategoryModal visible={visible} setVisible={setVisible}/>
+            <AddCategoryModal visible={visible} setVisible={setVisible} categoriesLength={categories.length} onAddCategory={handleAddCategory}/>
 
             <div className="grid pt-4">
                 <div className="col-2">
@@ -74,7 +100,7 @@ const Home: React.FC = () => {
                 </div>
                 {categories[activeIndex]?.websites?.map((website, idx) => (
                     <div key={idx} className="col-2">
-                        <WebsiteCard title={website.name} description={website.description} imageUrl={website.image} imageType={website.imageType} />
+                        <WebsiteCard title={website.name} description={website.description} link={website.link} imageUrl={website.image} imageType={website.imageType} />
                     </div>
                 ))}
             </div>
