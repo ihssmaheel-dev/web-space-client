@@ -45,7 +45,12 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ visible, setVisible
     const validationSchema = Yup.object({
         categoryName: Yup.string()
             .required("Category name is required")
-            .matches(/^[a-zA-Z0-9 ]*$/, "Category name cannot contain special characters"),
+            .matches(/^[a-zA-Z0-9 ]*$/, "Category name cannot contain special characters")
+            .test(
+                'maxChars',
+                'Category name cannot exceed 12 chars',
+                value => !value || value.split("").filter(char => char).length <= 12
+            ),
         description: Yup.string()
             .test(
                 'maxWords',
