@@ -31,11 +31,11 @@ interface WebsiteI {
 interface AddCategoryModalProps {
     visible: boolean;
     setVisible: React.Dispatch<React.SetStateAction<boolean>>;
-    categoriesLength: number;
+    categories: CategoryI[];
     onAddCategory: (category: CategoryI) => void;
 }
 
-const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ visible, setVisible, categoriesLength, onAddCategory }) => {
+const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ visible, setVisible, categories, onAddCategory }) => {
     const initialValues = {
         name: "",
         icon: "",
@@ -50,7 +50,12 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ visible, setVisible
                 'maxChars',
                 'Category name cannot exceed 12 chars',
                 value => !value || value.split("").filter(char => char).length <= 12
-            ),
+            )
+            .test('duplicate-category', 'This category name already exists', function(value) {
+                const { path, createError } = this;
+                const isDuplicate = categories?.some(category => category.name === value)
+                return isDuplicate ? createError({ path, message: 'This category name already exists' }) : true;
+            }),
         description: Yup.string()
             .test(
                 'maxWords',
@@ -61,7 +66,7 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ visible, setVisible
 
     const handleSubmit = (values: any, { resetForm }: { resetForm: () => void }) => {
         const newCategory = {
-            no: categoriesLength,
+            no: categories.length,
             id: crypto.randomUUID(),
             name: values.name,
             icon: values.icon || "pi pi-stop",
