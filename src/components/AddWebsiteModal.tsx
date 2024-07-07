@@ -47,37 +47,46 @@ const AddWebsiteModal: React.FC<AddWebsiteModalProps> = ({ visible, setVisible, 
     };
 
     const validationSchema = Yup.object({
-        name: Yup.string().required("Website name is required"),
-        url: Yup.string().url("Invalid URL").required("Website link is required"),
+        name: Yup.string().required("Title is required"),
+        url: Yup.string().url("Invalid URL").required("URL is required"),
     });
+
+    const handleSubmit = (
+        values: typeof initialValues,
+        { resetForm }: { resetForm: () => void },
+        categoryIndex: number,
+        categories: CategoryI[],
+        onAddWebsite: (categoryIndex: number, newWebsite: WebsiteI) => void,
+        setVisible: React.Dispatch<React.SetStateAction<boolean>>
+    ) => {
+        const newWebsite = {
+            no: categories[categoryIndex].websites?.length || 0,
+            id: crypto.randomUUID(),
+            name: values.name,
+            image: values.image,
+            imageType: values.imageType,
+            description: values.description,
+            url: values.url
+        };
+    
+        onAddWebsite(categoryIndex, newWebsite);
+        setVisible(false);
+        resetForm();
+    };
 
     return (
         <Dialog visible={visible} style={{ width: '50vw' }} onHide={() => setVisible(false)} header="Add Website">
             <Formik
                 initialValues={initialValues}
                 validationSchema={validationSchema}
-                onSubmit={(values, { resetForm }) => {
-                    const newWebsite = {
-                        no: categories[categoryIndex].websites?.length || 0,
-                        id: crypto.randomUUID(),
-                        name: values.name,
-                        image: values.image,
-                        imageType: values.imageType,
-                        description: values.description,
-                        url: values.url
-                    };
-
-                    onAddWebsite(categoryIndex, newWebsite);
-                    setVisible(false);
-                    resetForm();
-                }}
+                onSubmit={(values, actions) => handleSubmit(values, actions, categoryIndex, categories, onAddWebsite, setVisible)}
             >
-                {({ values, handleSubmit, setFieldValue }) => (
-                    <Form onSubmit={handleSubmit}>
+                {({ values, setFieldValue }) => (
+                    <Form>
                         <div className="mb-5">
                             <div className="grid mb-1">
                                 <div className="flex flex-column gap-2 col-5">
-                                    <label htmlFor="url">Website URL</label>
+                                    <label htmlFor="url">URL <span className="text-red-200">*</span></label>
                                     <Field id="url" name="url" as={InputText} />
                                     <ErrorMessage name="url" component="small" className="p-error ml-1" />
                                 </div>
@@ -86,7 +95,7 @@ const AddWebsiteModal: React.FC<AddWebsiteModalProps> = ({ visible, setVisible, 
                                     <Button id="scrape" icon="pi pi-bolt" style={{ width: "35px", height: "44px" }} type="button" disabled />
                                 </div>
                                 <div className="flex flex-column gap-2 col-6">
-                                    <label htmlFor="name">Website name</label>
+                                    <label htmlFor="name">Title <span className="text-red-200">*</span></label>
                                     <Field id="name" name="name" as={InputText} />
                                     <ErrorMessage name="name" component="small" className="p-error ml-1" />
                                 </div>
