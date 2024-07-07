@@ -48,7 +48,12 @@ const AddWebsiteModal: React.FC<AddWebsiteModalProps> = ({ visible, setVisible, 
 
     const validationSchema = Yup.object({
         name: Yup.string().required("Title is required"),
-        url: Yup.string().url("Invalid URL").required("URL is required"),
+        url: Yup.string().url("Invalid URL").required("URL is required")
+        .test('duplicate-url', 'This URL already exists', function(value) {
+            const { path, createError } = this;
+            const isDuplicate = categories[categoryIndex].websites?.some(website => website.url === value)
+            return isDuplicate ? createError({ path, message: 'This URL already exists' }) : true;
+        }),
     });
 
     const handleSubmit = (
