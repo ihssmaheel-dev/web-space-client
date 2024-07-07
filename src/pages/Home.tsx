@@ -7,6 +7,7 @@ import WebsiteCard from '../components/WebsiteCard';
 import AddCategoryModal from '../components/AddCategoryModal';
 import AddCard from '../components/AddCard';
 import useLocalStorage from '../hooks/useLocalStorage';
+import AddWebsiteModal from '../components/AddWebsiteModal';
 
 interface CategoryI {
     no: number;
@@ -33,6 +34,7 @@ const Home: React.FC = () => {
     const navigate = useNavigate();
     const [activeIndex, setActiveIndex] = useState(0);
     const [addCategoryVisible, setAddCategoryVisible] = useState(false);
+    const [addWebsiteModalVisible, setAddWebsiteModalVisible] = useState(false);
     
     const categoriesObj: CategoryI[] = [
         {
@@ -59,6 +61,18 @@ const Home: React.FC = () => {
     const handleAddCategory = (newCategory: CategoryI) => {
         setCategories(prevCategories => [...prevCategories, newCategory]);
     };
+
+    const handleAddWebsite = (categoryIndex: number, newWebsite: WebsiteI) => {
+        setCategories(prevCategories => {
+            const updatedCategories = [...prevCategories];
+            const category = updatedCategories[categoryIndex];
+            if (category) {
+                category.websites = category.websites ? [...category.websites, newWebsite] : [newWebsite];
+            }
+            return updatedCategories;
+        });
+    };
+    
 
     const handleOpenAll = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.preventDefault();
@@ -97,9 +111,11 @@ const Home: React.FC = () => {
             
             <AddCategoryModal visible={addCategoryVisible} setVisible={setAddCategoryVisible} categoriesLength={categories.length} onAddCategory={handleAddCategory}/>
 
+            <AddWebsiteModal visible={addWebsiteModalVisible} setVisible={setAddWebsiteModalVisible} categoryIndex={activeIndex} categories={categories} onAddWebsite={handleAddWebsite} />
+
             <div className="grid pt-4">
                 <div className="col-2">
-                    <AddCard />
+                    <AddCard onClick={() => setAddWebsiteModalVisible(true)}/>
                 </div>
                 {categories[activeIndex]?.websites?.map((website, idx) => (
                     <div key={idx} className="col-2">
