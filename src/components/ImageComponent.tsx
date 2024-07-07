@@ -19,7 +19,7 @@ const ImageComponent: React.FC<ImageProps> = ({ image, imageType }) => {
                     src={image || defaultImage} 
                     style={{ objectFit: 'contain', height: '100%', width: '100%' }} 
                     height="50" 
-                    className="border-circle shadow-2"  
+                    className="border-circle"  
                     alt="Content" 
                 />
             ) : (
