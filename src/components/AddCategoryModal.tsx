@@ -37,8 +37,8 @@ interface AddCategoryModalProps {
 
 const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ visible, setVisible, categoriesLength, onAddCategory }) => {
     const initialValues = {
-        categoryName: "",
-        categoryIcon: "",
+        name: "",
+        icon: "",
         description: ""
     };
 
@@ -63,8 +63,8 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ visible, setVisible
         const newCategory = {
             no: categoriesLength,
             id: crypto.randomUUID(),
-            name: values.categoryName,
-            icon: values.categoryIcon || "pi pi-stop",
+            name: values.name,
+            icon: values.icon || "pi pi-stop",
             description: values.description,
             websites: []
         };
@@ -86,18 +86,18 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ visible, setVisible
                         <div className="mb-5">
                             <div className="grid mb-2">
                                 <div className="flex flex-column gap-2 col-6">
-                                    <label htmlFor="categoryName">Category name <span className="text-red-200">*</span></label>
-                                    <Field id="categoryName" name="categoryName" as={InputText} />
-                                    <ErrorMessage name="categoryName" component="small" className="p-error ml-1" />
+                                    <label htmlFor="name">Category name <span className="text-red-200">*</span></label>
+                                    <Field id="name" name="name" as={InputText} />
+                                    <ErrorMessage name="name" component="small" className="p-error ml-1" />
                                 </div>
                                 <div className="flex flex-column gap-2 col-6">
-                                    <label htmlFor="categoryIcon">Category Icon</label>
+                                    <label htmlFor="icon">Category Icon</label>
                                     <IconDropdown
-                                        value={values.categoryIcon}
-                                        onChange={(value: string) => setFieldValue('categoryIcon', value)}
+                                        value={values.icon}
+                                        onChange={(value: string) => setFieldValue('icon', value)}
                                         icons={icons}
                                     />
-                                    <ErrorMessage name="categoryIcon" component="small" className="p-error ml-1" />
+                                    <ErrorMessage name="icon" component="small" className="p-error ml-1" />
                                 </div>
                             </div>
                             <div className="flex flex-column gap-2">
