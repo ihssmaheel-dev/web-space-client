@@ -123,7 +123,7 @@ const Home: React.FC = () => {
                 </div>
             </div>
             
-            <AddCategoryModal visible={addCategoryVisible} setVisible={setAddCategoryVisible} categoriesLength={categories.length} onAddCategory={handleAddCategory}/>
+            <AddCategoryModal visible={addCategoryVisible} setVisible={setAddCategoryVisible} categories={categories} onAddCategory={handleAddCategory}/>
 
             <AddWebsiteModal visible={addWebsiteModalVisible} setVisible={setAddWebsiteModalVisible} categoryIndex={activeIndex} categories={categories} onAddWebsite={handleAddWebsite} />
 
