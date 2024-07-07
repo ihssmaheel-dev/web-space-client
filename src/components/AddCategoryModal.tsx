@@ -25,7 +25,7 @@ interface WebsiteI {
     image?: string;
     imageType?: ImageType;
     description: string;
-    link: string;
+    url: string;
 }
 
 interface AddCategoryModalProps {

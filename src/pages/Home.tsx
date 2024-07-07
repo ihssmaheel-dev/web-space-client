@@ -25,7 +25,7 @@ interface WebsiteI {
     image?: string;
     imageType?: ImageType;
     description: string;
-    link: string;
+    url: string;
 }
 
 const Home: React.FC = () => {
@@ -41,9 +41,9 @@ const Home: React.FC = () => {
             name: 'Favorites',
             icon: 'pi pi-heart',
             websites: [
-                { no: 0, id: crypto.randomUUID(), name: "youtube", description: "", image: "pi-youtube", imageType: "icon", link: "https://youtube.com" },
-                { no: 1, id: crypto.randomUUID(), name: "google", description: "", image: "pi-google", imageType: "icon", link: "https://google.com" },
-                { no: 2, id: crypto.randomUUID(), name: "chatgpt", description: "", image: "https://cdn.oaistatic.com/_next/static/media/favicon-32x32.630a2b99.png", imageType: "image", link: "https://chatgpt.com" },
+                { no: 0, id: crypto.randomUUID(), name: "youtube", description: "", image: "pi-youtube", imageType: "icon", url: "https://youtube.com" },
+                { no: 1, id: crypto.randomUUID(), name: "google", description: "", image: "pi-google", imageType: "icon", url: "https://google.com" },
+                { no: 2, id: crypto.randomUUID(), name: "chatgpt", description: "", image: "https://cdn.oaistatic.com/_next/static/media/favicon-32x32.630a2b99.png", imageType: "image", url: "https://chatgpt.com" },
             ]
         }
     ];
@@ -68,8 +68,8 @@ const Home: React.FC = () => {
         if (typeof index === "number" && categories[index]?.websites) {
             const websites = categories[index].websites;
             websites?.forEach(website => {
-                console.log(website.link);
-                window.open(website.link, "_blank");
+                console.log(website.url);
+                window.open(website.url, "_blank");
             });
         } else {
             console.error(`Invalid tab index or missing websites for tab index ${index}`);
@@ -103,7 +103,7 @@ const Home: React.FC = () => {
                 </div>
                 {categories[activeIndex]?.websites?.map((website, idx) => (
                     <div key={idx} className="col-2">
-                        <WebsiteCard title={website.name} description={website.description} link={website.link} imageUrl={website.image} imageType={website.imageType} />
+                        <WebsiteCard title={website.name} description={website.description} link={website.url} imageUrl={website.image} imageType={website.imageType} />
                     </div>
                 ))}
             </div>
