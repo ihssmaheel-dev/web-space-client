@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { TabMenu } from 'primereact/tabmenu';
 import { MenuItem } from 'primereact/menuitem';
 import { Button } from 'primereact/button';
+import { Toast } from 'primereact/toast';
 import WebsiteCard from '../components/WebsiteCard';
 import AddCategoryModal from '../components/AddCategoryModal';
 import AddCard from '../components/AddCard';
@@ -35,6 +36,14 @@ const Home: React.FC = () => {
     const [activeIndex, setActiveIndex] = useState(0);
     const [addCategoryVisible, setAddCategoryVisible] = useState(false);
     const [addWebsiteModalVisible, setAddWebsiteModalVisible] = useState(false);
+
+    const toast = useRef<Toast>(null);
+
+    const showToast = (severity: 'success' | 'info' | 'warn' | 'error' | undefined, message: string) => {
+        if(toast.current) {
+            toast.current.show({ severity, detail: message, life: 3000 });
+        }
+    }
     
     const categoriesObj: CategoryI[] = [
         {
@@ -60,6 +69,8 @@ const Home: React.FC = () => {
 
     const handleAddCategory = (newCategory: CategoryI) => {
         setCategories(prevCategories => [...prevCategories, newCategory]);
+
+        showToast("success", "Category Added Successfully");
     };
 
     const handleAddWebsite = (categoryIndex: number, newWebsite: WebsiteI) => {
@@ -71,6 +82,8 @@ const Home: React.FC = () => {
             }
             return updatedCategories;
         });
+
+        showToast("success", "Website Added Successfully");
     };
     
 
@@ -101,6 +114,7 @@ const Home: React.FC = () => {
 
     return (
         <div className="card py-4 px-4">
+            <Toast ref={toast} />
             <div className="flex justify-content-between align-items-center">
                 <TabMenu model={items} activeIndex={activeIndex} onTabChange={(e) => setActiveIndex(e.index)} />
                 <div className="flex align-items-center ml-3">
