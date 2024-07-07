@@ -43,7 +43,7 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ visible, setVisible
     };
 
     const validationSchema = Yup.object({
-        categoryName: Yup.string()
+        name: Yup.string()
             .required("Category name is required")
             .matches(/^[a-zA-Z0-9 ]*$/, "Category name cannot contain special characters")
             .test(
@@ -65,7 +65,6 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ visible, setVisible
             id: crypto.randomUUID(),
             name: values.name,
             icon: values.icon || "pi pi-stop",
-            description: values.description,
             websites: []
         };
 
@@ -79,7 +78,7 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ visible, setVisible
             <Formik
                 initialValues={initialValues}
                 validationSchema={validationSchema}
-                onSubmit={handleSubmit}
+                onSubmit={(values, actions) => handleSubmit(values, actions)}
             >
                 {({ setFieldValue, values }) => (
                     <Form>
