@@ -51,36 +51,29 @@ const AddWebsiteModal: React.FC<AddWebsiteModalProps> = ({ visible, setVisible, 
         url: Yup.string().url("Invalid URL").required("Website link is required"),
     });
 
-    const handleSubmit = (values: any, { resetForm }: { resetForm: () => void }) => {
-        const newWebsite = {
-            no: categories[categoryIndex].websites?.length || 0,
-            id: crypto.randomUUID(),
-            name: values.name,
-            image: values.image,
-            imageType: values.imageType,
-            description: values.description,
-            url: values.url
-        };
-
-        onAddWebsite(categoryIndex, newWebsite);
-        setVisible(false);
-        resetForm();
-    };
-
-    const imageTypeOptions = [
-        { label: 'Icon', value: 'icon' },
-        { label: 'Image', value: 'image' },
-    ];
-
     return (
         <Dialog visible={visible} style={{ width: '50vw' }} onHide={() => setVisible(false)} header="Add Website">
             <Formik
                 initialValues={initialValues}
                 validationSchema={validationSchema}
-                onSubmit={handleSubmit}
+                onSubmit={(values, { resetForm }) => {
+                    const newWebsite = {
+                        no: categories[categoryIndex].websites?.length || 0,
+                        id: crypto.randomUUID(),
+                        name: values.name,
+                        image: values.image,
+                        imageType: values.imageType,
+                        description: values.description,
+                        url: values.url
+                    };
+
+                    onAddWebsite(categoryIndex, newWebsite);
+                    setVisible(false);
+                    resetForm();
+                }}
             >
-                {({ values, setFieldValue }) => (
-                    <Form>
+                {({ values, handleSubmit, setFieldValue }) => (
+                    <Form onSubmit={handleSubmit}>
                         <div className="mb-5">
                             <div className="grid mb-1">
                                 <div className="flex flex-column gap-2 col-5">
@@ -90,7 +83,7 @@ const AddWebsiteModal: React.FC<AddWebsiteModalProps> = ({ visible, setVisible, 
                                 </div>
                                 <div className="flex flex-column gap-2 col-1">
                                     <label htmlFor="">&nbsp;</label>
-                                    <Button icon="pi pi-bolt" style={{width: "35px", height: "44px"}} type="submit" />
+                                    <Button id="scrape" icon="pi pi-bolt" style={{ width: "35px", height: "44px" }} type="button" disabled />
                                 </div>
                                 <div className="flex flex-column gap-2 col-6">
                                     <label htmlFor="name">Website name</label>
@@ -105,8 +98,10 @@ const AddWebsiteModal: React.FC<AddWebsiteModalProps> = ({ visible, setVisible, 
                                         id="imageType"
                                         name="imageType"
                                         as={Dropdown}
-                                        options={imageTypeOptions}
-                                        onChange={(e: any) => setFieldValue("imageType", e.value)}
+                                        options={[
+                                            { label: 'Icon', value: 'icon' },
+                                            { label: 'Image', value: 'image' },
+                                        ]}
                                     />
                                     <ErrorMessage name="imageType" component="small" className="p-error ml-1" />
                                 </div>
