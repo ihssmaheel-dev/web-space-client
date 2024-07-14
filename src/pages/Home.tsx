@@ -11,6 +11,7 @@ import useLocalStorage from '../hooks/useLocalStorage';
 import AddWebsiteModal from '../components/AddWebsiteModal';
 import { Dialog } from 'primereact/dialog';
 import EditWebsiteModal from '../components/EditWebsiteModal';
+import ConfirmDeleteModal from '../components/ConfirmDeleteModal';
 
 interface CategoryI {
     no: number;
@@ -169,6 +170,7 @@ const Home: React.FC = () => {
     return (
         <div className="card py-4 px-4">
             <Toast ref={toast} />
+
             <div className="flex justify-content-between align-items-center">
                 <TabMenu model={items} activeIndex={activeIndex} onTabChange={(e) => setActiveIndex(e.index)} />
                 <div className="flex align-items-center ml-3">
@@ -176,12 +178,6 @@ const Home: React.FC = () => {
                     <Button icon="pi pi-external-link" className="p-button-primary" onClick={(e) => handleOpenAll(e)}/>
                 </div>
             </div>
-            
-            <AddCategoryModal visible={addCategoryVisible} setVisible={setAddCategoryVisible} categories={categories} onAddCategory={handleAddCategory}/>
-
-            <AddWebsiteModal visible={addWebsiteModalVisible} setVisible={setAddWebsiteModalVisible} categoryIndex={activeIndex} categories={categories} onAddWebsite={handleAddWebsite} />
-
-            <EditWebsiteModal visible={editWebsiteModalVisible} setVisible={setEditWebsiteModalVisible} website={website} onUpdateWebsite={handleUpdateWebsite}/>
 
             <div className="grid pt-4">
                 <div className="col-2">
@@ -194,24 +190,13 @@ const Home: React.FC = () => {
                 ))}
             </div>
 
-            <Dialog onClick={(e) => { e.stopPropagation(); }} visible={confirmDeleteVisible} onHide={() => cancelDelete} closable={false} modal header="Confirm Delete"
-                footer={
-                    <div>
-                        <Button
-                            label="Cancel"
-                            className="p-button-text"
-                            onClick={cancelDelete}
-                        />
-                        <Button
-                            label="Delete"
-                            className="p-button-danger"
-                            onClick={confirmDelete}
-                        />
-                    </div>
-                }
-            >
-                <div>Are you sure you want to delete <b>{selectedWebsite?.title?.toLocaleUpperCase()}</b>?</div>
-            </Dialog>
+            <AddCategoryModal visible={addCategoryVisible} setVisible={setAddCategoryVisible} categories={categories} onAddCategory={handleAddCategory}/>
+
+            <AddWebsiteModal visible={addWebsiteModalVisible} setVisible={setAddWebsiteModalVisible} categoryIndex={activeIndex} categories={categories} onAddWebsite={handleAddWebsite} />
+
+            <EditWebsiteModal visible={editWebsiteModalVisible} setVisible={setEditWebsiteModalVisible} website={website} onUpdateWebsite={handleUpdateWebsite}/>
+
+            <ConfirmDeleteModal visible={confirmDeleteVisible} confirmDelete={confirmDelete} cancelDelete={cancelDelete} title={selectedWebsite?.title || ""} />
         </div>
     );
 };
