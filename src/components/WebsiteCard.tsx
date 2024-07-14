@@ -13,6 +13,7 @@ interface WebsiteCardProps {
     link: string;
     imageUrl?: string;
     imageType?: ImageType;
+    onEdit: (categoryIndex: number, websiteIndex: number) => void;
     onDelete: (categoryIndex: number, websiteIndex: number) => void;
 }
 
@@ -23,6 +24,7 @@ const WebsiteCard: React.FC<WebsiteCardProps> = ({
     link,
     imageUrl,
     imageType,
+    onEdit,
     onDelete
 }) => {
     const menu = useRef<Menu>(null);
@@ -39,6 +41,7 @@ const WebsiteCard: React.FC<WebsiteCardProps> = ({
 
     const handleEdit = (event: MenuItemCommandEvent) => {
         menu.current?.hide(event.originalEvent);
+        onEdit(categoryIndex, websiteIndex);
     };
 
     const handleDelete = (event: MenuItemCommandEvent) => {
