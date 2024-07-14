@@ -39,7 +39,8 @@ const AddWebsiteModal: React.FC<AddWebsiteModalProps> = ({ visible, setVisible, 
     const initialValues = { name: "", image: "", imageType: "icon" as ImageType, url: "" };
 
     const validationSchema = Yup.object({
-        name: Yup.string().required("Title is required"),
+        name: Yup.string().required("Title is required")
+            .test('duplicate-title', 'This title already exists', value => !categories[categoryIndex].websites?.some(website => website.name === value)),
         url: Yup.string().url("Invalid URL").required("URL is required")
             .test('duplicate-url', 'This URL already exists', value => !categories[categoryIndex].websites?.some(website => website.url === value)),
     });
