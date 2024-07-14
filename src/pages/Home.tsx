@@ -9,6 +9,7 @@ import AddCategoryModal from '../components/AddCategoryModal';
 import AddCard from '../components/AddCard';
 import useLocalStorage from '../hooks/useLocalStorage';
 import AddWebsiteModal from '../components/AddWebsiteModal';
+import { Dialog } from 'primereact/dialog';
 
 interface CategoryI {
     no: number;
@@ -36,6 +37,8 @@ const Home: React.FC = () => {
     const [activeIndex, setActiveIndex] = useState(0);
     const [addCategoryVisible, setAddCategoryVisible] = useState(false);
     const [addWebsiteModalVisible, setAddWebsiteModalVisible] = useState(false);
+    const [confirmDeleteVisible, setConfirmDeleteVisible] = useState(false);
+    const [selectedWebsite, setSelectedWebsite] = useState<{ categoryIndex: number, websiteIndex: number, title: string} | null>(null);
 
     const toast = useRef<Toast>(null);
 
@@ -85,7 +88,31 @@ const Home: React.FC = () => {
 
         showToast("success", "Website Added Successfully");
     };
-    
+
+    const handleWebsiteDelete = (categoryIndex: number, websiteIndex: number) => {
+        setSelectedWebsite({ categoryIndex, websiteIndex, title: categories[categoryIndex].websites ? categories[categoryIndex].websites[websiteIndex].name : "" });
+        setConfirmDeleteVisible(true);
+    }
+
+    const confirmDelete = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if(selectedWebsite) {
+            const { categoryIndex, websiteIndex } = selectedWebsite;
+            const updatedCategories = [...categories];
+            updatedCategories[categoryIndex].websites?.splice(websiteIndex, 1);
+
+            setCategories(updatedCategories);
+            setConfirmDeleteVisible(false);
+        }
+        
+
+        setConfirmDeleteVisible(false);
+    };
+
+    const cancelDelete = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setConfirmDeleteVisible(false);
+    };
 
     const handleOpenAll = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.preventDefault();
@@ -133,10 +160,29 @@ const Home: React.FC = () => {
                 </div>
                 {categories[activeIndex]?.websites?.map((website, idx) => (
                     <div key={idx} className="col-2">
-                        <WebsiteCard title={website.name} description={website.description} link={website.url} imageUrl={website.image} imageType={website.imageType} />
+                        <WebsiteCard categoryIndex={activeIndex} websiteIndex={idx} title={website.name} description={website.description} link={website.url} imageUrl={website.image} imageType={website.imageType} onDelete={handleWebsiteDelete}/>
                     </div>
                 ))}
             </div>
+
+            <Dialog onClick={(e) => { e.stopPropagation(); }} visible={confirmDeleteVisible} onHide={() => cancelDelete} closable={false} modal header="Confirm Delete"
+                footer={
+                    <div>
+                        <Button
+                            label="Cancel"
+                            className="p-button-text"
+                            onClick={cancelDelete}
+                        />
+                        <Button
+                            label="Delete"
+                            className="p-button-danger"
+                            onClick={confirmDelete}
+                        />
+                    </div>
+                }
+            >
+                <div>Are you sure you want to delete <b>{selectedWebsite?.title.toLocaleUpperCase()}</b>?</div>
+            </Dialog>
         </div>
     );
 };
