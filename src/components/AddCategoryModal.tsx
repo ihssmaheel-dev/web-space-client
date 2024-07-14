@@ -2,7 +2,6 @@ import React from "react";
 import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
-import { InputTextarea } from 'primereact/inputtextarea';
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import IconDropdown from "./IconDropdown";
@@ -24,7 +23,6 @@ interface WebsiteI {
     name: string;
     image?: string;
     imageType?: ImageType;
-    description: string;
     url: string;
 }
 
@@ -39,7 +37,6 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ visible, setVisible
     const initialValues = {
         name: "",
         icon: "",
-        description: ""
     };
 
     const validationSchema = Yup.object({
@@ -56,12 +53,6 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ visible, setVisible
                 const isDuplicate = categories?.some(category => category.name === value)
                 return isDuplicate ? createError({ path, message: 'This category name already exists' }) : true;
             }),
-        description: Yup.string()
-            .test(
-                'maxWords',
-                'Description cannot exceed 30 words',
-                value => !value || value.split(' ').filter(word => word).length <= 30
-            ),
     });
 
     const handleSubmit = (values: any, { resetForm }: { resetForm: () => void }) => {
@@ -103,11 +94,6 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ visible, setVisible
                                     />
                                     <ErrorMessage name="icon" component="small" className="p-error ml-1" />
                                 </div>
-                            </div>
-                            <div className="flex flex-column gap-2">
-                                <label htmlFor="description">Description</label>
-                                <Field id="description" name="description" as={InputTextarea} rows={3} />
-                                <ErrorMessage name="description" component="small" className="p-error ml-1" />
                             </div>
                         </div>
                         <div className="p-mt-4">

@@ -12,7 +12,6 @@ interface WebsiteCardProps {
     categoryIndex: number;
     websiteIndex: number;
     title: string;
-    description: string;
     link: string;
     imageUrl?: string;
     imageType?: ImageType;
@@ -23,7 +22,6 @@ const WebsiteCard: React.FC<WebsiteCardProps> = ({
     categoryIndex,
     websiteIndex,
     title,
-    description,
     link,
     imageUrl,
     imageType,

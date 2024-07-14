@@ -25,7 +25,6 @@ interface WebsiteI {
     name: string;
     image?: string;
     imageType?: ImageType;
-    description: string;
     url: string;
 }
 
@@ -42,7 +41,6 @@ const AddWebsiteModal: React.FC<AddWebsiteModalProps> = ({ visible, setVisible, 
         name: "",
         image: "",
         imageType: "icon" as ImageType,
-        description: "",
         url: ""
     };
 
@@ -70,7 +68,6 @@ const AddWebsiteModal: React.FC<AddWebsiteModalProps> = ({ visible, setVisible, 
             name: values.name,
             image: values.image,
             imageType: values.imageType,
-            description: values.description,
             url: values.url
         };
     
@@ -136,13 +133,6 @@ const AddWebsiteModal: React.FC<AddWebsiteModalProps> = ({ visible, setVisible, 
                                         <ErrorMessage name="image" component="small" className="p-error ml-1" />
                                     </div>
                                 )}
-                            </div>
-                            <div className="grid">
-                                <div className="flex flex-column gap-2 col-12">
-                                    <label htmlFor="description">Description</label>
-                                    <Field id="description" name="description" as={InputTextarea} rows={3} />
-                                    <ErrorMessage name="description" component="small" className="p-error ml-1" />
-                                </div>
                             </div>
                         </div>
                         <div className="p-mt-4">

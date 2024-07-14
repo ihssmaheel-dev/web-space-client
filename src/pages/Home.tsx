@@ -27,7 +27,6 @@ interface WebsiteI {
     name: string;
     image?: string;
     imageType?: ImageType;
-    description: string;
     url: string;
 }
 
@@ -55,9 +54,9 @@ const Home: React.FC = () => {
             name: 'Favorites',
             icon: 'pi pi-heart',
             websites: [
-                { no: 0, id: crypto.randomUUID(), name: "youtube", description: "", image: "pi-youtube", imageType: "icon", url: "https://youtube.com" },
-                { no: 1, id: crypto.randomUUID(), name: "google", description: "", image: "pi-google", imageType: "icon", url: "https://google.com" },
-                { no: 2, id: crypto.randomUUID(), name: "chatgpt", description: "", image: "https://cdn.oaistatic.com/_next/static/media/favicon-32x32.630a2b99.png", imageType: "image", url: "https://chatgpt.com" },
+                { no: 0, id: crypto.randomUUID(), name: "youtube", image: "pi-youtube", imageType: "icon", url: "https://youtube.com" },
+                { no: 1, id: crypto.randomUUID(), name: "google", image: "pi-google", imageType: "icon", url: "https://google.com" },
+                { no: 2, id: crypto.randomUUID(), name: "chatgpt", image: "https://cdn.oaistatic.com/_next/static/media/favicon-32x32.630a2b99.png", imageType: "image", url: "https://chatgpt.com" },
             ]
         }
     ];
@@ -160,7 +159,7 @@ const Home: React.FC = () => {
                 </div>
                 {categories[activeIndex]?.websites?.map((website, idx) => (
                     <div key={idx} className="col-2">
-                        <WebsiteCard categoryIndex={activeIndex} websiteIndex={idx} title={website.name} description={website.description} link={website.url} imageUrl={website.image} imageType={website.imageType} onDelete={handleWebsiteDelete}/>
+                        <WebsiteCard categoryIndex={activeIndex} websiteIndex={idx} title={website.name} link={website.url} imageUrl={website.image} imageType={website.imageType} onDelete={handleWebsiteDelete}/>
                     </div>
                 ))}
             </div>
