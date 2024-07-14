@@ -34,25 +34,14 @@ interface AddCategoryModalProps {
 }
 
 const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ visible, setVisible, categories, onAddCategory }) => {
-    const initialValues = {
-        name: "",
-        icon: "",
-    };
+    const initialValues = { name: "", icon: "" };
 
     const validationSchema = Yup.object({
         name: Yup.string()
             .required("Category name is required")
             .matches(/^[a-zA-Z0-9 ]*$/, "Category name cannot contain special characters")
-            .test(
-                'maxChars',
-                'Category name cannot exceed 12 chars',
-                value => !value || value.split("").filter(char => char).length <= 12
-            )
-            .test('duplicate-category', 'This category name already exists', function(value) {
-                const { path, createError } = this;
-                const isDuplicate = categories?.some(category => category.name === value)
-                return isDuplicate ? createError({ path, message: 'This category name already exists' }) : true;
-            }),
+            .max(12, 'Category name cannot exceed 12 chars')
+            .test('duplicate-category', 'This category name already exists', value => !categories.some(category => category.name === value)),
     });
 
     const handleSubmit = (values: any, { resetForm }: { resetForm: () => void }) => {
@@ -71,11 +60,7 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ visible, setVisible
 
     return (
         <Dialog visible={visible} style={{ width: '46vw' }} onHide={() => setVisible(false)} header="Add Category">
-            <Formik
-                initialValues={initialValues}
-                validationSchema={validationSchema}
-                onSubmit={(values, actions) => handleSubmit(values, actions)}
-            >
+            <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={(values, actions) => handleSubmit(values, actions)}>
                 {({ setFieldValue, values }) => (
                     <Form>
                         <div className="mb-5">
