@@ -2,7 +2,6 @@ import React from "react";
 import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
-import { InputTextarea } from 'primereact/inputtextarea';
 import { Dropdown } from 'primereact/dropdown';
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";

@@ -1,8 +1,6 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { Card } from 'primereact/card';
 import { Menu } from 'primereact/menu';
-import { Button } from 'primereact/button';
-import { Dialog } from 'primereact/dialog';
 import { MenuItem, MenuItemCommandEvent } from 'primereact/menuitem';
 import ImageComponent from './ImageComponent';
 
