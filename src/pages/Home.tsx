@@ -12,6 +12,7 @@ import AddWebsiteModal from '../components/AddWebsiteModal';
 import { Dialog } from 'primereact/dialog';
 import EditWebsiteModal from '../components/EditWebsiteModal';
 import ConfirmDeleteModal from '../components/ConfirmDeleteModal';
+import WebsitesGrid from '../components/WebsitesGrid';
 
 interface CategoryI {
     no: number;
@@ -179,16 +180,7 @@ const Home: React.FC = () => {
                 </div>
             </div>
 
-            <div className="grid pt-4">
-                <div className="col-2">
-                    <AddCard onClick={() => setAddWebsiteModalVisible(true)}/>
-                </div>
-                {categories[activeIndex]?.websites?.map((website, idx) => (
-                    <div key={idx} className="col-2">
-                        <WebsiteCard categoryIndex={activeIndex} websiteIndex={idx} title={website.name} link={website.url} imageUrl={website.image} imageType={website.imageType} onEdit={handleEditWebsite} onDelete={handleWebsiteDelete}/>
-                    </div>
-                ))}
-            </div>
+            <WebsitesGrid setAddWebsiteModalVisible={setAddWebsiteModalVisible} categories={categories} activeIndex={activeIndex} handleEditWebsite={handleEditWebsite} handleWebsiteDelete={handleWebsiteDelete} />
 
             <AddCategoryModal visible={addCategoryVisible} setVisible={setAddCategoryVisible} categories={categories} onAddCategory={handleAddCategory}/>
 
