@@ -41,7 +41,7 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ visible, setVisible
     };
 
     return (
-        <Dialog visible={visible} style={{ width: '46vw' }} onHide={() => setVisible(false)} header="Add Category">
+        <Dialog className="w-6" visible={visible} onHide={() => setVisible(false)} header="Add Category">
             <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={(values, actions) => handleSubmit(values, actions)}>
                 {({ setFieldValue, values }) => (
                     <Form>

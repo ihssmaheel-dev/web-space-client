@@ -47,7 +47,7 @@ const AddWebsiteModal: React.FC<AddWebsiteModalProps> = ({ visible, setVisible, 
     };
 
     return (
-        <Dialog visible={visible} style={{ width: '50vw' }} onHide={() => setVisible(false)} header="Add Website">
+        <Dialog className="w-6" visible={visible} onHide={() => setVisible(false)} header="Add Website">
             <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={handleSubmit}>
                 {({ values, setFieldValue }) => (
                     <Form>
@@ -60,7 +60,7 @@ const AddWebsiteModal: React.FC<AddWebsiteModalProps> = ({ visible, setVisible, 
                                 </div>
                                 <div className="flex flex-column gap-2 col-1">
                                     <label htmlFor="">&nbsp;</label>
-                                    <Button id="scrape" icon="pi pi-bolt" style={{ width: "35px", height: "44px" }} type="button" disabled />
+                                    <Button type="button" id="scrape" icon="pi pi-bolt" style={{ width: "35px" }} disabled />
                                 </div>
                                 <div className="flex flex-column gap-2 col-6">
                                     <label htmlFor="name">Title <span className="text-red-200">*</span></label>

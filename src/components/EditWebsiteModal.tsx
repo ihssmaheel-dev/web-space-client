@@ -45,7 +45,7 @@ const EditWebsiteModal: React.FC<EditWebsiteModalProps> = ({ visible, setVisible
     }
 
     return (
-        <Dialog visible={visible} style={{ width: '50vw' }} onHide={() => setVisible(false)} header="Edit Website">
+        <Dialog className='w-6' visible={visible} onHide={() => setVisible(false)} header="Edit Website">
             <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={handleSubmit}>
                 {({ values, setFieldValue }) => (
                     <Form>
@@ -58,7 +58,7 @@ const EditWebsiteModal: React.FC<EditWebsiteModalProps> = ({ visible, setVisible
                                 </div>
                                 <div className="flex flex-column gap-2 col-1">
                                     <label htmlFor="">&nbsp;</label>
-                                    <Button id="scrape" icon="pi pi-bolt" style={{ width: "35px", height: "44px" }} type="button" disabled />
+                                    <Button id="scrape" icon="pi pi-bolt" style={{ width: "35px" }} type="button" disabled />
                                 </div>
                                 <div className="flex flex-column gap-2 col-6">
                                     <label htmlFor="name">Title <span className="text-red-200">*</span></label>

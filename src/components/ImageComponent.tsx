@@ -13,7 +13,7 @@ const ImageComponent: React.FC<ImageProps> = ({ image, imageType }) => {
     const defaultImage = theme === 'theme-light' ?  '/public/default_web_logo_light.png' : '/public/default_web_logo_dark.png';
 
     return (
-        <div className="mb-3 border-circle" style={{ height: "50px", maxWidth: "50px" }}>
+        <div className="mb-3 border-circle h-3rem w-3rem">
             {imageType === 'image' ? (
                 <img 
                     src={image || defaultImage} 
@@ -23,7 +23,7 @@ const ImageComponent: React.FC<ImageProps> = ({ image, imageType }) => {
                     alt="logo" 
                 />
             ) : (
-                <i className={`pi ${image || defaultIcon}`} style={{fontSize: "50px"}}></i>
+                <i className={`pi ${image || defaultIcon} text-6xl`}></i>
             )}
         </div>
     );
