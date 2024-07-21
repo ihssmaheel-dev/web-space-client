@@ -9,25 +9,7 @@ import EditWebsiteModal from '../components/EditWebsiteModal';
 import ConfirmDeleteModal from '../components/ConfirmDeleteModal';
 import WebsitesGrid from '../components/WebsitesGrid';
 import CategoryBar from '../components/CategoryBar';
-
-interface CategoryI {
-    no: number;
-    id: string;
-    name: string;
-    icon: string;
-    websites?: WebsiteI[];
-}
-
-type ImageType = "icon" | "image";
-
-interface WebsiteI {
-    no: number;
-    id: string;
-    name: string;
-    image?: string;
-    imageType?: ImageType;
-    url: string;
-}
+import { CategoryI, WebsiteI } from '../types';
 
 const Home: React.FC = () => {
     const { tab } = useParams<{ tab?: string }>();
