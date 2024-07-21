@@ -3,8 +3,7 @@ import { Card } from 'primereact/card';
 import { Menu } from 'primereact/menu';
 import { MenuItem, MenuItemCommandEvent } from 'primereact/menuitem';
 import ImageComponent from './ImageComponent';
-
-type ImageType = "icon" | "image";
+import { ImageType } from '../types';
 
 interface WebsiteCardProps {
     categoryIndex: number;

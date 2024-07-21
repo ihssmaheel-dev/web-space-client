@@ -1,25 +1,7 @@
 import React from 'react'
 import AddCard from './AddCard'
 import WebsiteCard from './WebsiteCard';
-
-interface CategoryI {
-    no: number;
-    id: string;
-    name: string;
-    icon: string;
-    websites?: WebsiteI[];
-}
-
-type ImageType = "icon" | "image";
-
-interface WebsiteI {
-    no: number;
-    id: string;
-    name: string;
-    image?: string;
-    imageType?: ImageType;
-    url: string;
-}
+import { CategoryI } from '../types';
 
 interface WebsitesGridProps {
     setAddWebsiteModalVisible: React.Dispatch<React.SetStateAction<boolean>>;

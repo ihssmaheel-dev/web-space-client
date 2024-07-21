@@ -6,25 +6,7 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import IconDropdown from "./IconDropdown";
 import { icons } from "../utils/icons";
-
-interface CategoryI {
-    no: number;
-    id: string;
-    name: string;
-    icon: string;
-    websites?: WebsiteI[];
-}
-
-type ImageType = "icon" | "image";
-
-interface WebsiteI {
-    no: number;
-    id: string;
-    name: string;
-    image?: string;
-    imageType?: ImageType;
-    url: string;
-}
+import { CategoryI } from "../types";
 
 interface AddCategoryModalProps {
     visible: boolean;

@@ -7,17 +7,7 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import IconDropdown from "./IconDropdown";
 import { icons } from "../utils/icons";
-
-type ImageType = "icon" | "image";
-
-interface WebsiteI {
-    no: number;
-    id: string;
-    name: string;
-    image?: string;
-    imageType?: ImageType;
-    url: string;
-}
+import { WebsiteI } from '../types';
 
 interface EditWebsiteModalProps {
     visible: boolean;
