@@ -20,7 +20,7 @@ const ImageComponent: React.FC<ImageProps> = ({ image, imageType }) => {
                     style={{ objectFit: 'contain', height: '100%', width: '100%' }} 
                     height="50" 
                     className="border-circle"  
-                    alt="Content" 
+                    alt="logo" 
                 />
             ) : (
                 <i className={`pi ${image || defaultIcon}`} style={{fontSize: "50px"}}></i>
