@@ -13,6 +13,7 @@ import { Dialog } from 'primereact/dialog';
 import EditWebsiteModal from '../components/EditWebsiteModal';
 import ConfirmDeleteModal from '../components/ConfirmDeleteModal';
 import WebsitesGrid from '../components/WebsitesGrid';
+import CategoryBar from '../components/CategoryBar';
 
 interface CategoryI {
     no: number;
@@ -172,13 +173,7 @@ const Home: React.FC = () => {
         <div className="card py-4 px-4">
             <Toast ref={toast} />
 
-            <div className="flex justify-content-between align-items-center">
-                <TabMenu model={items} activeIndex={activeIndex} onTabChange={(e) => setActiveIndex(e.index)} />
-                <div className="flex align-items-center ml-3">
-                    <Button icon="pi pi-plus" className="p-button-primary mr-2" onClick={() => setAddCategoryVisible(true)}/>
-                    <Button icon="pi pi-external-link" className="p-button-primary" onClick={(e) => handleOpenAll(e)}/>
-                </div>
-            </div>
+            <CategoryBar items={items} activeIndex={activeIndex} setActiveIndex={setActiveIndex} setAddCategoryVisible={setAddCategoryVisible} handleOpenAll={handleOpenAll} />
 
             <WebsitesGrid setAddWebsiteModalVisible={setAddWebsiteModalVisible} categories={categories} activeIndex={activeIndex} handleEditWebsite={handleEditWebsite} handleWebsiteDelete={handleWebsiteDelete} />
 
