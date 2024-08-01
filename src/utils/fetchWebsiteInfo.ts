@@ -25,19 +25,23 @@ export async function fetchWebsiteInfo(url: string) {
 
         // Extract favicon (icon) URL
         let iconUrl = '';
-        const iconLink = doc.querySelector('link[rel="icon"]');
-        if (iconLink) {
-            iconUrl = iconLink.getAttribute('href') || '';
-        } else {
-            const shortcutIconLink = doc.querySelector('link[rel="shortcut icon"]');
-            if (shortcutIconLink) {
-                iconUrl = shortcutIconLink.getAttribute('href') || '';
+        const linkRelations = ['icon', 'shortcut icon', 'apple-touch-icon', 'apple-touch-startup-image'];
+
+        for (const rel of linkRelations) {
+            const linkElement = doc.querySelector(`link[rel="${rel}"]`);
+            if (linkElement) {
+                iconUrl = linkElement.getAttribute('href') || '';
+                if (iconUrl) break;
             }
         }
 
-        if(!iconUrl.startsWith('http')) {
+        // Normalize the icon URL
+        if (iconUrl.startsWith("/")) {
+            iconUrl = new URL(iconUrl, url).href;
+        }
 
-            iconUrl = `${url}/${iconUrl}`;
+        if (iconUrl && !iconUrl.startsWith('http')) {
+            iconUrl = new URL(iconUrl, url).href;
         }
 
         return {
@@ -45,6 +49,7 @@ export async function fetchWebsiteInfo(url: string) {
             description,
             iconUrl
         };
+
     } catch (error) {
         console.error('Error fetching website information:', error);
         return null;
