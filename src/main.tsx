@@ -2,7 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
-import { ThemeProvider } from './contexts/ThemeContexts.tsx';
+import Providers from './Provider.tsx';
 
 // Prime React Configuration
 import "primereact/resources/primereact.min.css";
@@ -11,8 +11,8 @@ import "primeflex/primeflex.min.css";
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <ThemeProvider>
+    <Providers>
       <App />
-    </ThemeProvider>
+    </Providers>
   </React.StrictMode>,
 )
