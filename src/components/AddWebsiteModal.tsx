@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
@@ -21,6 +21,7 @@ interface AddWebsiteModalProps {
 
 const AddWebsiteModal: React.FC<AddWebsiteModalProps> = ({ visible, setVisible, categoryIndex, categories, onAddWebsite }) => {
     const { showToast } = useToast();
+    const [isScrapeLoading, setIsScrapeLoading] = useState(false);
     const initialValues = { name: "", image: "", imageType: "icon" as ImageType, url: "" };
 
     const validationSchema = Yup.object({
@@ -49,20 +50,27 @@ const AddWebsiteModal: React.FC<AddWebsiteModalProps> = ({ visible, setVisible, 
     };
 
     const handleScrape = async (url: string, setFieldValue: (field: string, value: any, shouldValidate?: boolean | undefined) => void) => {
-        if (!url) {
-            console.log("URL field is empty.");
-            return;
-        }
+        if(!url) { return; }
 
-        const websiteInfo = await fetchWebsiteInfo(url);
-    
-        if (websiteInfo) {
-            const { title, iconUrl } = websiteInfo;
-            setFieldValue('name', title);
-            setFieldValue('imageType', 'image');
-            setFieldValue('image', iconUrl);
-        } else {
-            showToast("error", "Failed to fetch website info");
+        setIsScrapeLoading(true);
+        try {
+            const websiteInfo = await fetchWebsiteInfo(url);
+
+            if (websiteInfo) {
+                const { title, iconUrl } = websiteInfo;
+                setFieldValue('name', title);
+                setFieldValue('imageType', 'image');
+                setFieldValue('image', iconUrl);
+            } else {
+                setFieldValue('name', "");
+                setFieldValue('imageType', 'icon');
+                setFieldValue('image', "");
+                showToast("error", "Failed to fetch website info");
+            }
+        } catch (error) {
+            showToast("error", "An error occurred while fetching website info");
+        } finally {
+            setIsScrapeLoading(false);
         }
     };
 
@@ -80,7 +88,14 @@ const AddWebsiteModal: React.FC<AddWebsiteModalProps> = ({ visible, setVisible, 
                                 </div>
                                 <div className="flex flex-column gap-2 col-1">
                                     <label htmlFor="">&nbsp;</label>
-                                    <Button type="button" id="scrape" icon="pi pi-bolt" style={{ width: "35px" }} onClick={() => handleScrape(values.url, setFieldValue)} />
+                                    <Button
+                                        type="button"
+                                        id="scrape"
+                                        icon={isScrapeLoading ? "pi pi-spin pi-spinner" : "pi pi-bolt"}
+                                        style={{ width: "35px" }}
+                                        onClick={() => handleScrape(values.url, setFieldValue)}
+                                        disabled={isScrapeLoading}
+                                    />
                                 </div>
                                 <div className="flex flex-column gap-2 col-6">
                                     <label htmlFor="name">Title <span className="text-red-200">*</span></label>
