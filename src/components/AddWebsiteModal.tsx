@@ -8,7 +8,8 @@ import * as Yup from "yup";
 import IconDropdown from "./IconDropdown";
 import { icons } from "../utils/icons";
 import { CategoryI, ImageType, WebsiteI } from "../types";
-
+import { fetchWebsiteInfo } from "../utils/fetchWebsiteInfo";
+import { useToast } from "../contexts/ToastContexts";
 
 interface AddWebsiteModalProps {
     visible: boolean;
@@ -19,6 +20,7 @@ interface AddWebsiteModalProps {
 }
 
 const AddWebsiteModal: React.FC<AddWebsiteModalProps> = ({ visible, setVisible, categoryIndex, categories, onAddWebsite }) => {
+    const { showToast } = useToast();
     const initialValues = { name: "", image: "", imageType: "icon" as ImageType, url: "" };
 
     const validationSchema = Yup.object({
@@ -46,6 +48,24 @@ const AddWebsiteModal: React.FC<AddWebsiteModalProps> = ({ visible, setVisible, 
         resetForm();
     };
 
+    const handleScrape = async (url: string, setFieldValue: (field: string, value: any, shouldValidate?: boolean | undefined) => void) => {
+        if (!url) {
+            console.log("URL field is empty.");
+            return;
+        }
+
+        const websiteInfo = await fetchWebsiteInfo(url);
+    
+        if (websiteInfo) {
+            const { title, iconUrl } = websiteInfo;
+            setFieldValue('name', title);
+            setFieldValue('imageType', 'image');
+            setFieldValue('image', iconUrl);
+        } else {
+            showToast("error", "Failed to fetch website info");
+        }
+    };
+
     return (
         <Dialog className="w-6" visible={visible} onHide={() => setVisible(false)} header="Add Website">
             <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={handleSubmit}>
@@ -60,7 +80,7 @@ const AddWebsiteModal: React.FC<AddWebsiteModalProps> = ({ visible, setVisible, 
                                 </div>
                                 <div className="flex flex-column gap-2 col-1">
                                     <label htmlFor="">&nbsp;</label>
-                                    <Button type="button" id="scrape" icon="pi pi-bolt" style={{ width: "35px" }} disabled />
+                                    <Button type="button" id="scrape" icon="pi pi-bolt" style={{ width: "35px" }} onClick={() => handleScrape(values.url, setFieldValue)} />
                                 </div>
                                 <div className="flex flex-column gap-2 col-6">
                                     <label htmlFor="name">Title <span className="text-red-200">*</span></label>
