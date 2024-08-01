@@ -10,8 +10,10 @@ import ConfirmDeleteModal from '../components/ConfirmDeleteModal';
 import WebsitesGrid from '../components/WebsitesGrid';
 import CategoryBar from '../components/CategoryBar';
 import { CategoryI, WebsiteI } from '../types';
+import { useToast } from '../contexts/ToastContexts';
 
 const Home: React.FC = () => {
+    const { showToast } = useToast();
     const { tab } = useParams<{ tab?: string }>();
     const navigate = useNavigate();
     const [activeIndex, setActiveIndex] = useState(0);
@@ -22,12 +24,6 @@ const Home: React.FC = () => {
     const [selectedWebsite, setSelectedWebsite] = useState<{ categoryIndex: number, websiteIndex: number, title?: string} | null>(null);
 
     const toast = useRef<Toast>(null);
-
-    const showToast = (severity: 'success' | 'info' | 'warn' | 'error' | undefined, message: string) => {
-        if(toast.current) {
-            toast.current.show({ severity, detail: message, life: 3000 });
-        }
-    }
     
     const categoriesObj: CategoryI[] = [
         {
