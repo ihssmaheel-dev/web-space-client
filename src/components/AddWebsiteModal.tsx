@@ -22,7 +22,7 @@ interface AddWebsiteModalProps {
 const AddWebsiteModal: React.FC<AddWebsiteModalProps> = ({ visible, setVisible, categoryIndex, categories, onAddWebsite }) => {
     const { showToast } = useToast();
     const [isScrapeLoading, setIsScrapeLoading] = useState(false);
-    const initialValues = { name: "", image: "", imageType: "icon" as ImageType, url: "" };
+    const initialValues = { name: "", image: "", imageType: "icon" as ImageType, url: "https://" };
 
     const validationSchema = Yup.object({
         name: Yup.string().required("Title is required")
