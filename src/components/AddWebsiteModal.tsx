@@ -26,6 +26,9 @@ const AddWebsiteModal: React.FC<AddWebsiteModalProps> = ({ visible, setVisible, 
 
     const validationSchema = Yup.object({
         name: Yup.string().required("Title is required")
+            .matches(/^[a-zA-Z0-9]+$/, "No Special characters allowed")
+            .min(3, "Title must be at least 3 characters")
+            .max(15, "Title can be up to 15 characters long")
             .test('duplicate-title', 'This title already exists', value => !categories[categoryIndex].websites?.some(website => website.name === value)),
         url: Yup.string().url("Invalid URL").required("URL is required")
             .test('duplicate-url', 'This URL already exists', value => !categories[categoryIndex].websites?.some(website => website.url === value)),
