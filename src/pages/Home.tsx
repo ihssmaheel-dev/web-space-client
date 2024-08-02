@@ -11,11 +11,13 @@ import WebsitesGrid from '../components/WebsitesGrid';
 import CategoryBar from '../components/CategoryBar';
 import { CategoryI, WebsiteI } from '../types';
 import { useToast } from '../contexts/ToastContexts';
+import useUserActivity from '../hooks/useUserActivity';
 
 const Home: React.FC = () => {
+    const navigate = useNavigate();
     const { showToast } = useToast();
     const { tab } = useParams<{ tab?: string }>();
-    const navigate = useNavigate();
+    const { logVisit } = useUserActivity();
     const [activeIndex, setActiveIndex] = useState(0);
     const [addCategoryVisible, setAddCategoryVisible] = useState(false);
     const [addWebsiteModalVisible, setAddWebsiteModalVisible] = useState(false);
@@ -125,6 +127,7 @@ const Home: React.FC = () => {
             const websites = categories[index].websites;
             websites?.forEach(website => {
                 console.log(website.url);
+                logVisit(website.url);
                 window.open(website.url, "_blank");
             });
         } else {

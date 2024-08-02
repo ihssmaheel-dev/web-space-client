@@ -4,6 +4,7 @@ import { Menu } from 'primereact/menu';
 import { MenuItem, MenuItemCommandEvent } from 'primereact/menuitem';
 import ImageComponent from './ImageComponent';
 import { ImageType } from '../types';
+import useUserActivity from '../hooks/useUserActivity';
 
 interface WebsiteCardProps {
     categoryIndex: number;
@@ -27,9 +28,11 @@ const WebsiteCard: React.FC<WebsiteCardProps> = ({
     onDelete
 }) => {
     const menu = useRef<Menu>(null);
+    const { logVisit } = useUserActivity();
 
     const handleClick = (e: React.MouseEvent) => {
         e.preventDefault();
+        logVisit(link);
         window.open(link, "_blank");
     };
 
