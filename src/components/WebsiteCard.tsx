@@ -9,6 +9,7 @@ import useUserActivity from '../hooks/useUserActivity';
 interface WebsiteCardProps {
     categoryIndex: number;
     websiteIndex: number;
+    websiteId: string;
     title: string;
     link: string;
     imageUrl?: string;
@@ -20,6 +21,7 @@ interface WebsiteCardProps {
 const WebsiteCard: React.FC<WebsiteCardProps> = ({
     categoryIndex,
     websiteIndex,
+    websiteId,
     title,
     link,
     imageUrl,
@@ -32,7 +34,7 @@ const WebsiteCard: React.FC<WebsiteCardProps> = ({
 
     const handleClick = (e: React.MouseEvent) => {
         e.preventDefault();
-        logVisit(link);
+        logVisit(websiteId);
         window.open(link, "_blank");
     };
 

@@ -16,8 +16,8 @@ const WebsitesGrid: React.FC<WebsitesGridProps> = ({ setAddWebsiteModalVisible, 
     const { userActivity } = useUserActivity();
     
     const sortedWebsites = categories[activeIndex]?.websites?.sort((a, b) => {
-        const visitA = userActivity[a.url] || 0;
-        const visitB = userActivity[b.url] || 0;
+        const visitA = userActivity[a.id] || 0;
+        const visitB = userActivity[b.id] || 0;
         
         return visitB - visitA;
     });
@@ -29,7 +29,7 @@ const WebsitesGrid: React.FC<WebsitesGridProps> = ({ setAddWebsiteModalVisible, 
             </div>
             {sortedWebsites?.map((website, idx) => (
                 <div key={idx} className="col-2">
-                    <WebsiteCard categoryIndex={activeIndex} websiteIndex={idx} title={website.name} link={website.url} imageUrl={website.image} imageType={website.imageType} onEdit={handleEditWebsite} onDelete={handleWebsiteDelete}/>
+                    <WebsiteCard categoryIndex={activeIndex} websiteIndex={idx} websiteId={website.id} title={website.name} link={website.url} imageUrl={website.image} imageType={website.imageType} onEdit={handleEditWebsite} onDelete={handleWebsiteDelete}/>
                 </div>
             ))}
         </div>

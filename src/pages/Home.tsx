@@ -127,7 +127,7 @@ const Home: React.FC = () => {
             const websites = categories[index].websites;
             websites?.forEach(website => {
                 console.log(website.url);
-                logVisit(website.url);
+                logVisit(website.id);
                 window.open(website.url, "_blank");
             });
         } else {
