@@ -34,7 +34,6 @@ const Home: React.FC = () => {
             websites: [
                 { no: 0, id: crypto.randomUUID(), name: "youtube", image: "pi-youtube", imageType: "icon", url: "https://youtube.com" },
                 { no: 1, id: crypto.randomUUID(), name: "google", image: "pi-google", imageType: "icon", url: "https://google.com" },
-                { no: 2, id: crypto.randomUUID(), name: "chatgpt", image: "https://cdn.oaistatic.com/_next/static/media/favicon-32x32.630a2b99.png", imageType: "image", url: "https://chatgpt.com" },
             ]
         }
     ];
@@ -44,7 +43,7 @@ const Home: React.FC = () => {
     const items: MenuItem[] = categories.map((category, index) => ({
         label: category.name,
         icon: `pi ${category.icon}`,
-        command: () => navigate(`/home/category/${index + 1}`)
+        command: () => navigate(`/home/category/${index + 1}`),
     }));
 
     const handleAddCategory = (newCategory: CategoryI) => {
