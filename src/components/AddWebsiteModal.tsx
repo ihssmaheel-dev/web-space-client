@@ -45,7 +45,8 @@ const AddWebsiteModal: React.FC<AddWebsiteModalProps> = ({ visible, setVisible, 
             image: values.image,
             imageType: values.imageType,
             url: values.url,
-            createdAt: Date.now()
+            createdAt: Date.now(),
+            updatedAt: Date.now()
         };
 
         onAddWebsite(categoryIndex, newWebsite);

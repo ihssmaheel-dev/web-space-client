@@ -32,7 +32,9 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ visible, setVisible
             id: crypto.randomUUID(),
             name: values.name,
             icon: values.icon || "pi pi-stop",
-            websites: []
+            websites: [],
+            createdAt: Date.now(),
+            updatedAt: Date.now()
         };
 
         onAddCategory(newCategory);

@@ -37,7 +37,8 @@ const EditWebsiteModal: React.FC<EditWebsiteModalProps> = ({ visible, setVisible
             name: values.name,
             image: values.image,
             imageType: values.imageType,
-            url: values.url
+            url: values.url,
+            updatedAt: Date.now()
         };
 
         onUpdateWebsite(updatedWebsite);

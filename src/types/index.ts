@@ -7,7 +7,8 @@ export interface WebsiteI {
     image?: string;
     imageType?: ImageType;
     url: string;
-    createdAt: number;
+    createdAt?: number;
+    updatedAt?: number;
 }
 
 export interface CategoryI {
@@ -16,4 +17,6 @@ export interface CategoryI {
     name: string;
     icon: string;
     websites?: WebsiteI[];
+    createdAt?: number;
+    updatedAt?: number;
 }
