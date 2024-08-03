@@ -1,5 +1,5 @@
-import { Skeleton } from 'primereact/skeleton';
 import React from 'react';
+import { Skeleton } from 'primereact/skeleton';
 
 const SkeletonWebsiteCard = () => {
     const skeletonCount = 6;
