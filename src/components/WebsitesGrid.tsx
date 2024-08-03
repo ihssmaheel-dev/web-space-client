@@ -55,7 +55,7 @@ const WebsitesGrid: React.FC<WebsitesGridProps> = ({ setAddWebsiteModalVisible, 
                     <AddCard onClick={() => setAddWebsiteModalVisible(true)} />
                 </div>
                 {sortedWebsites?.map((website, idx) => (
-                    <div key={idx} className="col-2">
+                    <div key={idx} className="col-2 select-none">
                         <WebsiteCard 
                             categoryIndex={activeIndex} 
                             websiteIndex={idx} 
