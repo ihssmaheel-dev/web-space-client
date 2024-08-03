@@ -45,25 +45,17 @@ const Home: React.FC = () => {
 
     const [categories, setCategories] = useLocalStorage<CategoryI[]>("categories", categoriesObj);
 
-    const updateCategories = useCallback((newCategories: CategoryI[]) => {
-        setCategories(newCategories);
-    }, []);
+    const category = selectedWebsite ? categories[selectedWebsite.categoryIndex] : null;
+    const website = selectedWebsite && category && category.websites ? category?.websites[selectedWebsite.websiteIndex] : null;
 
     const handleAddCategory = (newCategory: CategoryI) => {
         setCategories(prevCategories => [...prevCategories, newCategory]);
         showToast("success", "Category Added Successfully");
     };
 
-    const handleAddWebsite = (categoryIndex: number, newWebsite: WebsiteI) => {
-        setCategories(prevCategories => {
-            const updatedCategories = [...prevCategories];
-            const category = updatedCategories[categoryIndex];
-            if (category) {
-                category.websites = category.websites ? [...category.websites, newWebsite] : [newWebsite];
-            }
-            return updatedCategories;
-        });
-        showToast("success", "Website Added Successfully");
+    const handleEditCategory = (index: number) => {
+        setSelectedCategoryIndex(index);
+        setEditCategoryVisible(true);
     };
 
     const handleUpdateCategory = (updatedCategory: CategoryI) => {
@@ -79,8 +71,26 @@ const Home: React.FC = () => {
         }
     }
 
-    const category = selectedWebsite ? categories[selectedWebsite.categoryIndex] : null;
-    const website = selectedWebsite && category && category.websites ? category?.websites[selectedWebsite.websiteIndex] : null;
+    const updateCategories = useCallback((newCategories: CategoryI[]) => {
+        setCategories(newCategories);
+    }, []);
+
+    const handleDeleteCategory = (index: number) => {
+        setSelectedCategoryIndex(index);
+        setConfirmDeleteVisible(true);
+    };
+
+    const handleAddWebsite = (categoryIndex: number, newWebsite: WebsiteI) => {
+        setCategories(prevCategories => {
+            const updatedCategories = [...prevCategories];
+            const category = updatedCategories[categoryIndex];
+            if (category) {
+                category.websites = category.websites ? [...category.websites, newWebsite] : [newWebsite];
+            }
+            return updatedCategories;
+        });
+        showToast("success", "Website Added Successfully");
+    };
 
     const handleEditWebsite = (categoryIndex: number, websiteIndex: number) => {
         setSelectedWebsite({ categoryIndex, websiteIndex });
@@ -156,16 +166,6 @@ const Home: React.FC = () => {
             console.error(`Invalid tab index or missing websites for tab index ${index}`);
         }
     }
-
-    const handleEditCategory = (index: number) => {
-        setSelectedCategoryIndex(index);
-        setEditCategoryVisible(true);
-    };
-
-    const handleDeleteCategory = (index: number) => {
-        setSelectedCategoryIndex(index);
-        setConfirmDeleteVisible(true);
-    };
 
     useEffect(() => {
         const tabIndex = tab ? parseInt(tab) - 1 : 0;
