@@ -7,6 +7,7 @@ export interface WebsiteI {
     image?: string;
     imageType?: ImageType;
     url: string;
+    createdAt: number;
 }
 
 export interface CategoryI {
