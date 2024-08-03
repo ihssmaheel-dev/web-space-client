@@ -36,8 +36,9 @@ const WebsitesGrid: React.FC<WebsitesGridProps> = ({ setAddWebsiteModalVisible, 
             case 'Name':
                 return websites.sort((a, b) => a.name.localeCompare(b.name));
             case 'Most used':
-            default:
                 return websites.sort((a, b) => (userActivity[b.id] || 0) - (userActivity[a.id] || 0));
+            default:
+                return websites.sort((a, b) => a.no - b.no);
         }
     };
 
