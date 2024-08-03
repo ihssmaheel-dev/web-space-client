@@ -93,7 +93,7 @@ const EditWebsiteModal: React.FC<EditWebsiteModalProps> = ({ visible, setVisible
                         </div>
                         <div className="p-mt-4">
                             <Button label="Update" icon="pi pi-check" className="mr-2" type="submit" />
-                            <Button label="Cancel" icon="pi pi-times" className="p-button-secondary p-ml-2" onClick={() => setVisible(false)} />
+                            <Button type='button' label="Cancel" icon="pi pi-times" className="p-button-secondary p-ml-2" onClick={() => setVisible(false)} />
                         </div>
                     </Form>
                 )}
