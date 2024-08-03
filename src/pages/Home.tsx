@@ -26,8 +26,6 @@ const Home: React.FC = () => {
     const [confirmDeleteVisible, setConfirmDeleteVisible] = useState(false);
     const [selectedWebsite, setSelectedWebsite] = useState<{ categoryIndex: number, websiteIndex: number, title?: string } | null>(null);
     const [selectedCategoryIndex, setSelectedCategoryIndex] = useState<number | null>(null);
-
-    const toast = useRef<Toast>(null);
     
     const categoriesObj: CategoryI[] = [
         {
@@ -178,7 +176,6 @@ const Home: React.FC = () => {
 
     return (
         <div className="card py-4 px-4">
-            <Toast ref={toast} />
             <CategoryBar
                 categories={categories}
                 activeIndex={activeIndex}

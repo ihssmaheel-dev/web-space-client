@@ -1,10 +1,11 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Menu } from 'primereact/menu';
 import { MenuItem } from 'primereact/menuitem';
 import { TabMenu } from 'primereact/tabmenu';
 import { useNavigate } from 'react-router-dom';
 import ActionButtons from './ActionButtons';
 import { CategoryI } from '../types';
+import SkeletonCategoryBar from './loaders/SkeletonCategoryBar';
 
 interface CategoryBarProps {
     categories: CategoryI[];
@@ -28,6 +29,15 @@ const CategoryBar: React.FC<CategoryBarProps> = ({
     const navigate = useNavigate();
     const menu = useRef<Menu>(null);
     const [selectedCategoryIndex, setSelectedCategoryIndex] = React.useState<number | null>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setLoading(false);
+        }, 500);
+
+        return () => clearTimeout(timer);
+    }, []);
 
     const handleMenuClick = (e: React.MouseEvent, index: number) => {
         e.stopPropagation();
@@ -94,7 +104,7 @@ const CategoryBar: React.FC<CategoryBarProps> = ({
 
     return (
         <div className="flex justify-content-between align-items-center">
-            <TabMenu model={items} activeIndex={activeIndex} onTabChange={(e) => setActiveIndex(e.index)} />
+            {loading ? ( <SkeletonCategoryBar /> ) : (<TabMenu model={items} activeIndex={activeIndex} onTabChange={(e) => setActiveIndex(e.index)} />)}
             <ActionButtons setAddCategoryVisible={setAddCategoryVisible} handleOpenAll={handleOpenAll} />
         </div>
     );

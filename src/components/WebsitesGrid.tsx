@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { 
     DndContext, 
     closestCenter,
@@ -22,6 +22,7 @@ import { Button } from 'primereact/button';
 import { CategoryI, WebsiteI } from '../types';
 import useUserActivity from '../hooks/useUserActivity';
 import useLocalStorage from '../hooks/useLocalStorage';
+import SkeletonWebsiteCard from './loaders/SkeletonWebsiteCard';
 
 interface WebsitesGridProps {
     setAddWebsiteModalVisible: React.Dispatch<React.SetStateAction<boolean>>;
@@ -77,6 +78,7 @@ const WebsitesGrid: React.FC<WebsitesGridProps> = ({
 }) => {
     const { userActivity } = useUserActivity();
     const [sortMethod, setSortMethod] = useLocalStorage<SortMethod>('sortBy', 'Default');
+    const [loading, setLoading] = useState(true);
     
     const sortMethods: SortMethod[] = ['Default', 'Ordered' ,'Name', 'Most used'];
 
@@ -133,6 +135,14 @@ const WebsitesGrid: React.FC<WebsitesGridProps> = ({
             updateCategories(newCategories);
         }
     };
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setLoading(false);
+        }, 500);
+
+        return () => clearTimeout(timer);
+    }, []);
 
     const renderWebsites = () => {
         if (sortMethod === 'Ordered') {
@@ -200,7 +210,7 @@ const WebsitesGrid: React.FC<WebsitesGridProps> = ({
             <div className="mt-3">
                 <Button label={`Sort by ${sortMethod}`} icon="pi pi-sort-alt" onClick={cycleSortMethod} />
             </div>
-            {renderWebsites()}
+            {loading ? (<SkeletonWebsiteCard />) : (renderWebsites())}
         </div>
     );
 };

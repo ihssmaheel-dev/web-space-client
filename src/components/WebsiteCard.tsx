@@ -76,7 +76,6 @@ const WebsiteCard: React.FC<WebsiteCardProps> = ({
                     </p>
                 </div>
             </div>
-
         </Card>
     );
 }
