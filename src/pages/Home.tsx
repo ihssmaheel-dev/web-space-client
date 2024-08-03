@@ -34,8 +34,8 @@ const Home: React.FC = () => {
             name: 'Favorites',
             icon: 'pi pi-heart',
             websites: [
-                { no: 0, id: crypto.randomUUID(), name: "youtube", image: "pi-youtube", imageType: "icon", url: "https://youtube.com" },
-                { no: 1, id: crypto.randomUUID(), name: "google", image: "pi-google", imageType: "icon", url: "https://google.com" },
+                { no: 0, id: crypto.randomUUID(), name: "youtube", image: "pi-youtube", imageType: "icon", url: "https://youtube.com", createdAt: Date.now() },
+                { no: 1, id: crypto.randomUUID(), name: "google", image: "pi-google", imageType: "icon", url: "https://google.com", createdAt: Date.now() },
             ]
         }
     ];
