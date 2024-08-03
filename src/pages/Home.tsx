@@ -35,8 +35,8 @@ const Home: React.FC = () => {
             icon: 'pi-heart',
             createdAt: Date.now(),
             websites: [
-                { no: 0, id: crypto.randomUUID(), name: "youtube", image: "pi-youtube", imageType: "icon", url: "https://youtube.com", createdAt: Date.now() },
-                { no: 1, id: crypto.randomUUID(), name: "google", image: "pi-google", imageType: "icon", url: "https://google.com", createdAt: Date.now() },
+                { no: 0, id: crypto.randomUUID(), name: "youtube", image: "pi-youtube", imageType: "icon", url: "https://www.youtube.com", createdAt: Date.now() },
+                { no: 1, id: crypto.randomUUID(), name: "google", image: "pi-google", imageType: "icon", url: "https://www.google.com", createdAt: Date.now() },
             ]
         }
     ];
@@ -215,6 +215,8 @@ const Home: React.FC = () => {
             <EditWebsiteModal
                 visible={editWebsiteModalVisible}
                 setVisible={setEditWebsiteModalVisible}
+                categoryIndex={activeIndex}
+                categories={categories}
                 website={website}
                 onUpdateWebsite={handleUpdateWebsite}
             />

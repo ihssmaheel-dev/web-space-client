@@ -7,16 +7,18 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import IconDropdown from "./IconDropdown";
 import { icons } from "../utils/icons";
-import { WebsiteI } from '../types';
+import { CategoryI, WebsiteI } from '../types';
 
 interface EditWebsiteModalProps {
     visible: boolean;
     setVisible: React.Dispatch<React.SetStateAction<boolean>>
+    categoryIndex: number;
+    categories: CategoryI[];
     website: WebsiteI | null;
     onUpdateWebsite: (updatedWebsite: WebsiteI) => void;
 }
 
-const EditWebsiteModal: React.FC<EditWebsiteModalProps> = ({ visible, setVisible, website, onUpdateWebsite }) => {
+const EditWebsiteModal: React.FC<EditWebsiteModalProps> = ({ visible, setVisible, categoryIndex, categories, website, onUpdateWebsite }) => {
     if(!website) return null;
 
     const initialValues = {
@@ -27,8 +29,13 @@ const EditWebsiteModal: React.FC<EditWebsiteModalProps> = ({ visible, setVisible
     };
 
     const validationSchema = Yup.object({
-        name: Yup.string().required("Title is required"),
-        url: Yup.string().url("Invalid URL").required("URL is required"),
+        name: Yup.string().required("Title is required")
+            .matches(/^[a-zA-Z0-9 ]+$/, "No Special characters allowed")
+            .min(3, "Title must be at least 3 characters")
+            .max(15, "Title can be up to 15 characters long")
+            .test('duplicate-title', 'This title already exists', value => value !== website.name ? !categories[categoryIndex].websites?.some(website => website.name === value) : true),
+        url: Yup.string().url("Invalid URL").required("URL is required")
+            .test('duplicate-url', 'This URL already exists', value => value !== website.url ? !categories[categoryIndex].websites?.some(website => website.url === value) : true),
     });
 
     const handleSubmit = (values: typeof initialValues) => {
