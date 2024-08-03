@@ -18,8 +18,6 @@ interface EditCategoryModalProps {
 
 const EditCategoryModal: React.FC<EditCategoryModalProps> = ({ visible, setVisible, categories, category, onUpdateCategory }) => {
     const initialValues = { name: category.name, icon: category.icon };
-    console.log(category.name);
-    
 
     const validationSchema = Yup.object({
         name: Yup.string()
