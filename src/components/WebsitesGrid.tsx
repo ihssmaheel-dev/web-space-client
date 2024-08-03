@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react'
-import AddCard from './AddCard'
+import React, { useState } from 'react';
+import AddCard from './AddCard';
 import WebsiteCard from './WebsiteCard';
-import { CategoryI } from '../types';
+import { Button } from 'primereact/button';
+import { CategoryI, WebsiteI } from '../types';
 import useUserActivity from '../hooks/useUserActivity';
 
 interface WebsitesGridProps {
@@ -12,28 +13,63 @@ interface WebsitesGridProps {
     handleWebsiteDelete: (categoryIndex: number, websiteIndex: number) => void;
 }
 
-const WebsitesGrid: React.FC<WebsitesGridProps> = ({ setAddWebsiteModalVisible, categories, activeIndex, handleEditWebsite, handleWebsiteDelete  }) => {
+type SortMethod = 'Default' | 'Name' | 'Most used';
+
+const WebsitesGrid: React.FC<WebsitesGridProps> = ({ setAddWebsiteModalVisible, categories, activeIndex, handleEditWebsite, handleWebsiteDelete }) => {
     const { userActivity } = useUserActivity();
+    const [sortMethod, setSortMethod] = useState<SortMethod>('Most used');
     
-    const sortedWebsites = categories[activeIndex]?.websites?.sort((a, b) => {
-        const visitA = userActivity[a.id] || 0;
-        const visitB = userActivity[b.id] || 0;
-        
-        return visitB - visitA;
-    });
+    const sortMethods: SortMethod[] = ['Default', 'Name', 'Most used'];
+
+    const cycleSortMethod = () => {
+        const currentIndex = sortMethods.indexOf(sortMethod);
+        const nextIndex = (currentIndex + 1) % sortMethods.length;
+        setSortMethod(sortMethods[nextIndex]);
+    };
+
+    const getSortedWebsites = (): WebsiteI[] | undefined => {
+        const websites = categories[activeIndex]?.websites || [];
+
+        switch (sortMethod) {
+            case 'Default':
+                return websites.sort((a, b) => a.no - b.no);
+            case 'Name':
+                return websites.sort((a, b) => a.name.localeCompare(b.name));
+            case 'Most used':
+            default:
+                return websites.sort((a, b) => (userActivity[b.id] || 0) - (userActivity[a.id] || 0));
+        }
+    };
+
+    const sortedWebsites = getSortedWebsites();
 
     return (
-        <div className="grid pt-4">
-            <div className="col-2">
-                <AddCard onClick={() => setAddWebsiteModalVisible(true)}/>
+        <div>
+            <div className="mt-3">
+                <Button label={`Sort by ${sortMethod}`} icon="pi pi-sort-alt" onClick={cycleSortMethod} />
             </div>
-            {sortedWebsites?.map((website, idx) => (
-                <div key={idx} className="col-2">
-                    <WebsiteCard categoryIndex={activeIndex} websiteIndex={idx} websiteId={website.id} title={website.name} link={website.url} imageUrl={website.image} imageType={website.imageType} onEdit={handleEditWebsite} onDelete={handleWebsiteDelete}/>
+            <div className="grid pt-3">
+                <div className="col-2">
+                    <AddCard onClick={() => setAddWebsiteModalVisible(true)} />
                 </div>
-            ))}
+                {sortedWebsites?.map((website, idx) => (
+                    <div key={idx} className="col-2">
+                        <WebsiteCard 
+                            categoryIndex={activeIndex} 
+                            websiteIndex={idx} 
+                            websiteId={website.id} 
+                            title={website.name} 
+                            link={website.url} 
+                            imageUrl={website.image} 
+                            imageType={website.imageType} 
+                            onEdit={handleEditWebsite} 
+                            onDelete={handleWebsiteDelete}
+                        />
+                    </div>
+                ))}
+            </div>
         </div>
-    )
+    );
 }
 
-export default WebsitesGrid
+export default WebsitesGrid;
