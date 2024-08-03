@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { MenuItem } from 'primereact/menuitem';
 import { Toast } from 'primereact/toast';
@@ -41,6 +41,10 @@ const Home: React.FC = () => {
     ];
 
     const [categories, setCategories] = useLocalStorage<CategoryI[]>("categories", categoriesObj);
+
+    const updateCategories = useCallback((newCategories: CategoryI[]) => {
+        setCategories(newCategories);
+    }, []);
 
     const items: MenuItem[] = categories.map((category, index) => ({
         label: category.name,
@@ -150,7 +154,7 @@ const Home: React.FC = () => {
 
             <CategoryBar items={items} activeIndex={activeIndex} setActiveIndex={setActiveIndex} setAddCategoryVisible={setAddCategoryVisible} handleOpenAll={handleOpenAll} />
 
-            <WebsitesGrid setAddWebsiteModalVisible={setAddWebsiteModalVisible} categories={categories} activeIndex={activeIndex} handleEditWebsite={handleEditWebsite} handleWebsiteDelete={handleWebsiteDelete} />
+            <WebsitesGrid setAddWebsiteModalVisible={setAddWebsiteModalVisible} categories={categories} activeIndex={activeIndex} handleEditWebsite={handleEditWebsite} handleWebsiteDelete={handleWebsiteDelete} updateCategories={updateCategories} />
 
             <AddCategoryModal visible={addCategoryVisible} setVisible={setAddCategoryVisible} categories={categories} onAddCategory={handleAddCategory}/>
 
