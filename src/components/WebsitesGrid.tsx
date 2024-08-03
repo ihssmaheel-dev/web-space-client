@@ -36,7 +36,7 @@ interface SortableWebsiteCardProps extends Omit<WebsiteCardProps, 'websiteIndex'
     website: WebsiteI;
 }
 
-type SortMethod = 'Default' | 'Name' | 'Most used';
+type SortMethod = 'Default' | 'Ordered' |'Name' | 'Most used';
 
 const SortableWebsiteCard: React.FC<SortableWebsiteCardProps> = ({ website, ...props }) => {
     const {
@@ -78,7 +78,7 @@ const WebsitesGrid: React.FC<WebsitesGridProps> = ({
     const { userActivity } = useUserActivity();
     const [sortMethod, setSortMethod] = useLocalStorage<SortMethod>('sortBy', 'Default');
     
-    const sortMethods: SortMethod[] = ['Default', 'Name', 'Most used'];
+    const sortMethods: SortMethod[] = ['Default', 'Ordered' ,'Name', 'Most used'];
 
     const sensors = useSensors(
         useSensor(PointerSensor),
@@ -95,22 +95,28 @@ const WebsitesGrid: React.FC<WebsitesGridProps> = ({
 
     const getSortedWebsites = useCallback((): WebsiteI[] => {
         const websites = categories[activeIndex]?.websites || [];
+        console.log(websites);
+        
 
         switch (sortMethod) {
             case 'Default':
+                return [...websites].sort((a, b) => a.createdAt - b.createdAt);
+            case 'Ordered':
                 return [...websites].sort((a, b) => a.no - b.no);
             case 'Name':
                 return [...websites].sort((a, b) => a.name.localeCompare(b.name));
             case 'Most used':
                 return [...websites].sort((a, b) => (userActivity[b.id] || 0) - (userActivity[a.id] || 0));
             default:
-                return [...websites].sort((a, b) => a.no - b.no);
+                return [...websites].sort((a, b) => a.createdAt - b.createdAt);
         }
     }, [categories, activeIndex, sortMethod, userActivity]);
 
     const sortedWebsites = getSortedWebsites();
 
     const handleDragEnd = (event: DragEndEvent) => {
+        if (sortMethod !== 'Ordered') return;
+
         const { active, over } = event;
 
         if (active.id !== over?.id) {
@@ -119,7 +125,6 @@ const WebsitesGrid: React.FC<WebsitesGridProps> = ({
 
             const newWebsites = arrayMove(sortedWebsites, oldIndex, newIndex);
 
-            // Update the 'no' property for each website
             newWebsites.forEach((website, index) => {
                 website.no = index;
             });
@@ -130,42 +135,73 @@ const WebsitesGrid: React.FC<WebsitesGridProps> = ({
         }
     };
 
+    const renderWebsites = () => {
+        if (sortMethod === 'Ordered') {
+            return (
+                <DndContext 
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={handleDragEnd}
+                >
+                    <SortableContext 
+                        items={sortedWebsites.map(website => website.id)}
+                        strategy={rectSortingStrategy}
+                    >
+                        <div className="grid pt-3">
+                            <div className="col-2">
+                                <AddCard onClick={() => setAddWebsiteModalVisible(true)} />
+                            </div>
+                            {sortedWebsites.map((website) => (
+                                <div key={website.id} className="col-2 select-none">
+                                    <SortableWebsiteCard
+                                        website={website}
+                                        categoryIndex={activeIndex} 
+                                        websiteId={website.id} 
+                                        title={website.name} 
+                                        link={website.url} 
+                                        imageUrl={website.image} 
+                                        imageType={website.imageType} 
+                                        onEdit={handleEditWebsite} 
+                                        onDelete={handleWebsiteDelete}
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                    </SortableContext>
+                </DndContext>
+            );
+        } else {
+            return (
+                <div className="grid pt-3">
+                    <div className="col-2">
+                        <AddCard onClick={() => setAddWebsiteModalVisible(true)} />
+                    </div>
+                    {sortedWebsites.map((website) => (
+                        <div key={website.id} className="col-2 select-none">
+                            <WebsiteCard
+                                categoryIndex={activeIndex}
+                                websiteIndex={website.no}
+                                websiteId={website.id}
+                                title={website.name}
+                                link={website.url}
+                                imageUrl={website.image}
+                                imageType={website.imageType}
+                                onEdit={handleEditWebsite}
+                                onDelete={handleWebsiteDelete}
+                            />
+                        </div>
+                    ))}
+                </div>
+            );
+        }
+    };
+
     return (
         <div>
             <div className="mt-3">
                 <Button label={`Sort by ${sortMethod}`} icon="pi pi-sort-alt" onClick={cycleSortMethod} />
             </div>
-            <DndContext 
-                sensors={sensors}
-                collisionDetection={closestCenter}
-                onDragEnd={handleDragEnd}
-            >
-                <SortableContext 
-                    items={sortedWebsites.map(website => website.id)}
-                    strategy={rectSortingStrategy}
-                >
-                    <div className="grid pt-3">
-                        <div className="col-2">
-                            <AddCard onClick={() => setAddWebsiteModalVisible(true)} />
-                        </div>
-                        {sortedWebsites.map((website) => (
-                            <div key={website.id} className="col-2 select-none">
-                                <SortableWebsiteCard
-                                    website={website}
-                                    categoryIndex={activeIndex} 
-                                    websiteId={website.id} 
-                                    title={website.name} 
-                                    link={website.url} 
-                                    imageUrl={website.image} 
-                                    imageType={website.imageType} 
-                                    onEdit={handleEditWebsite} 
-                                    onDelete={handleWebsiteDelete}
-                                />
-                            </div>
-                        ))}
-                    </div>
-                </SortableContext>
-            </DndContext>
+            {renderWebsites()}
         </div>
     );
 };
