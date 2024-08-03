@@ -95,7 +95,6 @@ const WebsitesGrid: React.FC<WebsitesGridProps> = ({
 
     const getSortedWebsites = useCallback((): WebsiteI[] => {
         const websites = categories[activeIndex]?.websites || [];
-        console.log(websites);
         
 
         switch (sortMethod) {
