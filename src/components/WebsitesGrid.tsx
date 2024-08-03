@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import AddCard from './AddCard';
 import WebsiteCard from './WebsiteCard';
 import { Button } from 'primereact/button';
 import { CategoryI, WebsiteI } from '../types';
 import useUserActivity from '../hooks/useUserActivity';
+import useLocalStorage from '../hooks/useLocalStorage';
 
 interface WebsitesGridProps {
     setAddWebsiteModalVisible: React.Dispatch<React.SetStateAction<boolean>>;
@@ -17,7 +18,7 @@ type SortMethod = 'Default' | 'Name' | 'Most used';
 
 const WebsitesGrid: React.FC<WebsitesGridProps> = ({ setAddWebsiteModalVisible, categories, activeIndex, handleEditWebsite, handleWebsiteDelete }) => {
     const { userActivity } = useUserActivity();
-    const [sortMethod, setSortMethod] = useState<SortMethod>('Most used');
+    const [sortMethod, setSortMethod] = useLocalStorage<SortMethod>('sortBy', 'Default');
     
     const sortMethods: SortMethod[] = ['Default', 'Name', 'Most used'];
 
