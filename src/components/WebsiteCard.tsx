@@ -6,7 +6,7 @@ import ImageComponent from './ImageComponent';
 import { ImageType } from '../types';
 import useUserActivity from '../hooks/useUserActivity';
 
-interface WebsiteCardProps {
+export interface WebsiteCardProps {
     categoryIndex: number;
     websiteIndex: number;
     websiteId: string;
