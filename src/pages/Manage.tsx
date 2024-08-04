@@ -14,6 +14,9 @@ import "./Manage.css";
 import useLocalStorage from '../hooks/useLocalStorage';
 import useUserActivity from '../hooks/useUserActivity';
 import { convert } from 'html-to-text';
+import useTheme from '../hooks/useTheme';
+import { FileUpload, FileUploadSelectEvent } from 'primereact/fileupload';
+import { parseBookmarkFile } from '../utils/parseBookmarkFile';
 
 interface SelectedWebsite {
     categoryIndex: number;
@@ -23,6 +26,7 @@ interface SelectedWebsite {
 }
 
 const Manage: React.FC = () => {
+    const { theme } = useTheme();
     const { showToast } = useToast();
     const { logVisit } = useUserActivity();
     const categoriesbbj = getLocalStorageValue<CategoryI[]>("categories") || [];
@@ -197,6 +201,20 @@ const Manage: React.FC = () => {
         }
     };
 
+    // const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    //     const file = event.target.files?.[0];
+    //     if (file) {
+    //         const reader = new FileReader();
+    //         reader.onload = (e: ProgressEvent<FileReader>) => {
+    //             const contents = e.target?.result as string;
+    //             parseBookmarks(contents);
+    //         };
+    //         reader.readAsText(file);
+    //     }
+    // };
+
+    const customHeader = `custom-header ${theme === 'theme-light' && 'dark'}`;
+
     const rowExpansionTemplate = (data: CategoryI) => {
         return (
             <>
@@ -215,29 +233,35 @@ const Manage: React.FC = () => {
                 <DataTable value={data.websites} dataKey="id">
                     <Column 
                         header="S.No."
-                        body={(_rowData: WebsiteI, options) => options.rowIndex + 1} 
+                        body={(_rowData: WebsiteI, options) => options.rowIndex + 1}
+                        headerClassName={customHeader}
                     />
                     <Column 
                         field="name"
                         header="Website Name" 
+                        headerClassName={customHeader}
                     />
                     <Column 
                         field="url"
                         header="URL"
+                        headerClassName={customHeader}
                         body={(rowData: WebsiteI) => (<a href={`${rowData?.url}`} className='url-cell' target="_blank" onClick={() => logVisit(rowData?.id)}>{rowData?.url}</a>)} 
                     />
                     <Column 
                         field="icon"
                         header="Icon / Image"
+                        headerClassName={customHeader}
                         body={(rowData: WebsiteI) => (rowData.imageType === "icon" ? <i className={`pi ${rowData?.image} text-2xl`}></i> : <img src={rowData?.image} alt="icon" height={24} width={24} />) || ""}
                     />
                     <Column 
                         field="visits"
                         header="Total Visits"
+                        headerClassName={customHeader}
                         body={(rowData: WebsiteI) => userActivities[rowData?.id] || 0} 
                     />
                     <Column
                         header="Actions"
+                        headerClassName={customHeader}
                         body={(_rowData: WebsiteI, options) => (
                             <>
                                 <Button
@@ -264,9 +288,30 @@ const Manage: React.FC = () => {
         );
     };
 
+    const handleBookmarkUpload = async (event: FileUploadSelectEvent) => {
+        const file = event.files?.[0];
+        if (file) {
+            try {
+                const { categories, websites } = await parseBookmarkFile(file);
+                setCategories(categories);
+                showToast("success", "Bookmarks imported successfully");
+            } catch (error) {
+                showToast("error", "Failed to import bookmarks");
+                console.error("Error parsing bookmark file:", error);
+            }
+        }
+    };
+
     return (
         <div className='card py-4 px-4'>
             <div className='flex align-items-center justify-content-end'>
+                <FileUpload
+                    className='mb-4 mr-2'
+                    accept=".html"
+                    chooseOptions={{ icon: 'pi pi-upload' }}
+                    chooseLabel='Upload Bookmarks'
+                    mode="basic"
+                    onSelect={handleBookmarkUpload} />
                 <Button
                     label="Add Category"
                     icon="pi pi-plus"
@@ -282,35 +327,54 @@ const Manage: React.FC = () => {
                 dataKey="id"
                 className="custom-datatable"
             >
-                <Column expander style={{ width: '6rem' }}/>
-                <Column header="S.No." body={(_rowData: CategoryI, options) => options.rowIndex + 1} />
-                <Column field="name" header="Category Name" />
-                <Column header="Number of Websites" body={(rowData: CategoryI) => rowData.websites?.length || 0} />
-                <Column header="Actions" body={(_rowData: CategoryI, options) => (
-                    <>
-                        <Button
-                            className='mr-2 custom-button'
-                            icon="pi pi-external-link font-semibold text-sm"
-                            onClick={() => handleOpenAll(options.rowIndex)}
-                        />
-                        <Button
-                            className='mr-2 custom-button'
-                            icon="pi pi-copy font-semibold text-sm"
-                            onClick={() => handleCopyAll(options.rowIndex)}
-                        />
-                        <Button
-                            className='bg-warning border-warning text-white mr-2 custom-button'
-                            icon="pi pi-pencil font-semibold text-sm"
-                            onClick={() => handleEditCategory(options.rowIndex)}
-                        />
-                        <Button
-                            className='bg-danger border-danger text-white custom-button'
-                            icon="pi pi-trash font-semibold text-sm"
-                            onClick={() => handleDeleteCategory(options.rowIndex)}
-                        />
-                    </>
-                )}
-                headerClassName="custom-header" />
+                <Column 
+                    expander
+                    style={{ width: '6rem' }}
+                    headerClassName={customHeader}
+                />
+                <Column 
+                    header="S.No."
+                    headerClassName={customHeader}
+                    body={(_rowData: CategoryI, options) => options.rowIndex + 1}
+                />
+                <Column 
+                    field="name"
+                    header="Category Name"
+                    headerClassName={customHeader}
+                />
+                <Column 
+                    header="No. of Websites"
+                    headerClassName={customHeader}
+                    body={(rowData: CategoryI) => rowData.websites?.length || 0}
+                />
+                <Column 
+                    header="Actions"
+                    headerClassName={customHeader}
+                    body={(_rowData: CategoryI, options) => (
+                        <>
+                            <Button
+                                className='mr-2 custom-button'
+                                icon="pi pi-external-link font-semibold text-sm"
+                                onClick={() => handleOpenAll(options.rowIndex)}
+                            />
+                            <Button
+                                className='mr-2 custom-button'
+                                icon="pi pi-copy font-semibold text-sm"
+                                onClick={() => handleCopyAll(options.rowIndex)}
+                            />
+                            <Button
+                                className='bg-warning border-warning text-white mr-2 custom-button'
+                                icon="pi pi-pencil font-semibold text-sm"
+                                onClick={() => handleEditCategory(options.rowIndex)}
+                            />
+                            <Button
+                                className='bg-danger border-danger text-white custom-button'
+                                icon="pi pi-trash font-semibold text-sm"
+                                onClick={() => handleDeleteCategory(options.rowIndex)}
+                            />
+                        </>
+                    )}
+                />
             </DataTable>
 
             <AddCategoryModal
