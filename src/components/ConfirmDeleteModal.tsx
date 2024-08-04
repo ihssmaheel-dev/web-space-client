@@ -15,6 +15,7 @@ const ConfirmDeleteModal : React.FC<ConfirmDeleteModalProps> = ({ visible, confi
                 footer={
                     <div>
                         <Button
+                            type='button'
                             label="Cancel"
                             className="p-button-text"
                             onClick={cancelDelete}
