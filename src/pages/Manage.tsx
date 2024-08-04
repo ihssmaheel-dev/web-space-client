@@ -309,7 +309,8 @@ const Manage: React.FC = () => {
                     chooseOptions={{ icon: `pi ${loading ? "pi-spin pi-spinner" : "pi-upload"}` }}
                     chooseLabel='Upload Bookmarks'
                     mode="basic"
-                    onSelect={handleBookmarkUpload} />
+                    onSelect={handleBookmarkUpload}
+                    disabled={loading} />
                 <Button
                     label="Add Category"
                     icon="pi pi-plus"
