@@ -8,15 +8,23 @@ export const parseBookmarkFile = async (file: File): Promise<{ categories: Categ
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = (e) => {
-            const content = e.target?.result as string;
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(content, 'text/html');
-
             const categories: CategoryI[] = [];
             const websites: WebsiteI[] = [];
             let categoryIndex = 0;
-            let websiteIndex = 0;
             let errorMessage: string | null = null;
+
+            const content = e.target?.result as string;
+
+            console.log("elll", /<!DOCTYPE NETSCAPE-Bookmark-file-1>/i.test(content));
+            
+
+            if(!/<!DOCTYPE NETSCAPE-Bookmark-file-1>/i.test(content)) {
+                errorMessage = 'Please upload a valid bookmark file.';
+                reject(new Error(errorMessage));
+            }
+
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(content, 'text/html');
 
             const processFolder = (folder: Element): CategoryI | undefined => {
                 const title = folder.querySelector(':scope > h3')?.textContent?.trim() || 'Untitled';
@@ -43,7 +51,7 @@ export const parseBookmarkFile = async (file: File): Promise<{ categories: Categ
                 }
 
                 if (links.length !== 0) {
-                    links.forEach((link) => {
+                    links.forEach((link, websiteIndex) => {
                         const website: WebsiteI = {
                             no: websiteIndex,
                             id: crypto.randomUUID(),
