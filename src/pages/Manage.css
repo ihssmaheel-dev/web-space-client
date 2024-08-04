@@ -10,6 +10,18 @@
     border-color: #dc5345;
 }
 
+.text-warning {
+    color: #ffc107;
+}
+
+.bg-warning {
+    background-color: #ffc107;
+}
+
+.border-warning {
+    border-color: #ffc107;
+}
+
 .custom-button {
     height: 2rem;
     width: 2rem;
