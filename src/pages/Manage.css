@@ -1,0 +1,16 @@
+.text-danger {
+    color: #dc5345;
+}
+
+.bg-danger {
+    background-color: #dc5345;
+}
+
+.border-danger {
+    border-color: #dc5345;
+}
+
+.custom-button {
+    height: 2rem;
+    width: 2rem;
+}
