@@ -17,7 +17,7 @@ interface EditCategoryModalProps {
 }
 
 const EditCategoryModal: React.FC<EditCategoryModalProps> = ({ visible, setVisible, categories, category, onUpdateCategory }) => {
-    const initialValues = { name: category.name, icon: category.icon };
+    const initialValues = { name: category?.name, icon: category?.icon };
 
     const validationSchema = Yup.object({
         name: Yup.string()
@@ -64,7 +64,7 @@ const EditCategoryModal: React.FC<EditCategoryModalProps> = ({ visible, setVisib
                         </div>
                         <div className="p-mt-4">
                             <Button label="Update" icon="pi pi-check" className="mr-2" type="submit" />
-                            <Button label="Cancel" icon="pi pi-times" className="p-button-secondary p-ml-2" onClick={() => setVisible(false)} />
+                            <Button type="button" label="Cancel" icon="pi pi-times" className="p-button-secondary p-ml-2" onClick={() => setVisible(false)} />
                         </div>
                     </Form>
                 )}
