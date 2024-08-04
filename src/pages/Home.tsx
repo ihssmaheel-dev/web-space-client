@@ -12,6 +12,7 @@ import { CategoryI, WebsiteI } from '../types';
 import { useToast } from '../contexts/ToastContexts';
 import useUserActivity from '../hooks/useUserActivity';
 import EditCategoryModal from '../components/EditCategoryModal';
+import { getLocalStorageValue } from '../utils/localStorageUtils';
 
 const Home: React.FC = () => {
     const navigate = useNavigate();
@@ -42,6 +43,9 @@ const Home: React.FC = () => {
     ];
 
     const [categories, setCategories] = useLocalStorage<CategoryI[]>("categories", categoriesObj);
+
+    const categoriesLocal = getLocalStorageValue("categories");
+    if(categoriesLocal === null) { setCategories(categoriesObj); }
 
     const category = selectedWebsite ? categories[selectedWebsite.categoryIndex] : null;
     const website = selectedWebsite && category && category.websites ? category?.websites[selectedWebsite.websiteIndex] : null;
