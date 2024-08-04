@@ -45,6 +45,8 @@ const Manage: React.FC = () => {
     const [confirmDeleteVisibleCategory, setConfirmDeleteVisibleCategory] = useState(false);
     const [confirmDeleteVisibleWebsite, setConfirmDeleteVisibleWebsite] = useState(false);
 
+    const [loading, setLoading] = useState(false);
+
     const handleAddCategory = (newCategory: CategoryI) => {
         setCategories(prevCategories => [...prevCategories, newCategory]);
         showToast("success", "Category Added Successfully");
@@ -280,6 +282,7 @@ const Manage: React.FC = () => {
     const handleBookmarkUpload = async (event: FileUploadSelectEvent) => {
         const file = event.files?.[0];
         if (file) {
+            setLoading(true); // Start loading
             try {
                 const { categories } = await parseBookmarkFile(file);
                 setCategories(categories);
@@ -288,8 +291,9 @@ const Manage: React.FC = () => {
                 showToast("error", (error as Error).message || "Failed to import bookmarks");
                 console.error("Error parsing bookmark file:", error);
             } finally {
+                setLoading(false); // End loading
                 if (fileUploadRef.current) {
-                    fileUploadRef.current.clear();
+                    fileUploadRef.current.clear(); // Reset the file upload component
                 }
             }
         }
@@ -302,7 +306,7 @@ const Manage: React.FC = () => {
                     ref={fileUploadRef}
                     className='mb-4 mr-2'
                     accept=".html"
-                    chooseOptions={{ icon: 'pi pi-upload' }}
+                    chooseOptions={{ icon: `pi ${loading ? "pi-spin pi-spinner" : "pi-upload"}` }}
                     chooseLabel='Upload Bookmarks'
                     mode="basic"
                     onSelect={handleBookmarkUpload} />
