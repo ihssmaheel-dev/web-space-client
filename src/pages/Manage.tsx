@@ -13,6 +13,7 @@ import { useToast } from '../contexts/ToastContexts';
 import "./Manage.css";
 import useLocalStorage from '../hooks/useLocalStorage';
 import useUserActivity from '../hooks/useUserActivity';
+import { convert } from 'html-to-text';
 
 interface SelectedWebsite {
     categoryIndex: number;
@@ -149,6 +150,37 @@ const Manage: React.FC = () => {
         }
     }
 
+    const handleCopyAll = (categoryIndex: number) => {
+        let copyText = "";
+        if (typeof categoryIndex === "number" && categories[categoryIndex]?.websites) {
+            const websites = categories[categoryIndex].websites;
+
+            let htmlTable = "<table style='border: 1px solid black; border-collapse: collapse;'>";
+            htmlTable += "<tr><th style='border: 1px solid black; padding: 5px;'>Name</th><th style='border: 1px solid black; padding: 5px;'>URL</th></tr>";
+
+            websites?.forEach(website => {
+                htmlTable += `<tr><td style='border: 1px solid black; padding: 5px;'>${website.name}</td><td style='border: 1px solid black; padding: 5px;'>${website.url}</td></tr>`;
+            });
+
+            htmlTable += "</table>";
+
+            copyText = convert(htmlTable, {
+                wordwrap: 150,
+                tables: true,
+            });
+
+            // Copy to clipboard
+            navigator.clipboard.writeText(copyText)
+                .then(() => {
+                    showToast("success", "Copied to clipboard successfully");
+                })
+                .catch(err => {
+                    showToast("error", "Failed to copy to clipboard");
+                    console.error("Could not copy text: ", err);
+                });
+        }
+    };
+
     const rowExpansionTemplate = (data: CategoryI) => {
         return (
             <>
@@ -165,18 +197,36 @@ const Manage: React.FC = () => {
                 </div>
             <div className='px-4 py-4'>
                 <DataTable value={data.websites} dataKey="id">
-                    <Column header="S.No." body={(_rowData: WebsiteI, options) => options.rowIndex + 1} />
-                    <Column field="name" header="Website Name" />
-                    <Column field="url" header="URL" />
-                    <Column field="icon" header="Icon / Image" body={(rowData: WebsiteI) => (rowData.imageType === "icon" ? <i className={`pi ${rowData?.image} text-2xl`}></i> : <img src={rowData?.image} alt="icon" height={24} width={24} />) || ""} />
-                    <Column field="visits" header="Total Visits" body={(rowData: WebsiteI) => userActivities[rowData?.id] || 0} />
+                    <Column 
+                        header="S.No."
+                        body={(_rowData: WebsiteI, options) => options.rowIndex + 1} 
+                    />
+                    <Column 
+                        field="name"
+                        header="Website Name" 
+                    />
+                    <Column 
+                        field="url"
+                        header="URL"
+                        body={(rowData: WebsiteI) => (<a href={`${rowData?.url}`} className='url-cell' target="_blank" onClick={() => logVisit(rowData?.id)}>{rowData?.url}</a>)} 
+                    />
+                    <Column 
+                        field="icon"
+                        header="Icon / Image"
+                        body={(rowData: WebsiteI) => (rowData.imageType === "icon" ? <i className={`pi ${rowData?.image} text-2xl`}></i> : <img src={rowData?.image} alt="icon" height={24} width={24} />) || ""}
+                    />
+                    <Column 
+                        field="visits"
+                        header="Total Visits"
+                        body={(rowData: WebsiteI) => userActivities[rowData?.id] || 0} 
+                    />
                     <Column
                         header="Actions"
                         body={(_rowData: WebsiteI, options) => (
                             <>
                                 <Button
-                                    className='mr-2 custom-button'
-                                    icon="pi pi-pencil text-sm"
+                                    className='bg-warning border-warning text-white mr-2 custom-button'
+                                    icon="pi pi-pencil font-semibold text-sm"
                                     onClick={() => handleEditWebsite(data.no, options.rowIndex)}
                                 />
                                 <Button
@@ -221,6 +271,11 @@ const Manage: React.FC = () => {
                             className='mr-2 custom-button'
                             icon="pi pi-external-link font-semibold text-sm"
                             onClick={() => handleOpenAll(options.rowIndex)}
+                        />
+                        <Button
+                            className='mr-2 custom-button'
+                            icon="pi pi-copy font-semibold text-sm"
+                            onClick={() => handleCopyAll(options.rowIndex)}
                         />
                         <Button
                             className='bg-warning border-warning text-white mr-2 custom-button'
