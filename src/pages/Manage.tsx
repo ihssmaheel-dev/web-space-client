@@ -12,6 +12,7 @@ import AddWebsiteModal from '../components/AddWebsiteModal';
 import { useToast } from '../contexts/ToastContexts';
 import "./Manage.css";
 import useLocalStorage from '../hooks/useLocalStorage';
+import useUserActivity from '../hooks/useUserActivity';
 
 interface SelectedWebsite {
     categoryIndex: number;
@@ -22,6 +23,7 @@ interface SelectedWebsite {
 
 const Manage: React.FC = () => {
     const { showToast } = useToast();
+    const { logVisit } = useUserActivity();
     const categoriesbbj = getLocalStorageValue<CategoryI[]>("categories") || [];
     const [categories, setCategories] = useLocalStorage("categories", categoriesbbj);
 
@@ -134,6 +136,19 @@ const Manage: React.FC = () => {
         showToast("success", "Website Added Successfully");
     };
 
+    const handleOpenAll = (categoryIndex: number) => {
+        if (typeof categoryIndex === "number" && categories[categoryIndex]?.websites) {
+            const websites = categories[categoryIndex].websites;
+            websites?.forEach(website => {
+                console.log(website.url);
+                logVisit(website.id);
+                window.open(website.url, "_blank");
+            });
+        } else {
+            console.error(`Invalid tab index or missing websites for tab index ${categoryIndex}`);
+        }
+    }
+
     const rowExpansionTemplate = (data: CategoryI) => {
         return (
             <>
@@ -204,12 +219,17 @@ const Manage: React.FC = () => {
                     <>
                         <Button
                             className='mr-2 custom-button'
-                            icon="pi pi-pencil text-sm"
+                            icon="pi pi-external-link font-semibold text-sm"
+                            onClick={() => handleOpenAll(options.rowIndex)}
+                        />
+                        <Button
+                            className='bg-warning border-warning text-white mr-2 custom-button'
+                            icon="pi pi-pencil font-semibold text-sm"
                             onClick={() => handleEditCategory(options.rowIndex)}
                         />
                         <Button
                             className='bg-danger border-danger text-white custom-button'
-                            icon="pi pi-trash text-sm"
+                            icon="pi pi-trash font-semibold text-sm"
                             onClick={() => handleDeleteCategory(options.rowIndex)}
                         />
                     </>
