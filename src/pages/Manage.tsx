@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
@@ -29,6 +29,7 @@ const Manage: React.FC = () => {
     const { theme } = useTheme();
     const { showToast } = useToast();
     const { logVisit } = useUserActivity();
+    const fileUploadRef = useRef<FileUpload>(null);
     const categoriesbbj = getLocalStorageValue<CategoryI[]>("categories") || [];
     const [categories, setCategories] = useLocalStorage("categories", categoriesbbj);
 
@@ -201,18 +202,6 @@ const Manage: React.FC = () => {
         }
     };
 
-    // const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    //     const file = event.target.files?.[0];
-    //     if (file) {
-    //         const reader = new FileReader();
-    //         reader.onload = (e: ProgressEvent<FileReader>) => {
-    //             const contents = e.target?.result as string;
-    //             parseBookmarks(contents);
-    //         };
-    //         reader.readAsText(file);
-    //     }
-    // };
-
     const customHeader = `custom-header ${theme === 'theme-light' && 'dark'}`;
 
     const rowExpansionTemplate = (data: CategoryI) => {
@@ -292,12 +281,16 @@ const Manage: React.FC = () => {
         const file = event.files?.[0];
         if (file) {
             try {
-                const { categories, websites } = await parseBookmarkFile(file);
+                const { categories } = await parseBookmarkFile(file);
                 setCategories(categories);
                 showToast("success", "Bookmarks imported successfully");
             } catch (error) {
-                showToast("error", "Failed to import bookmarks");
+                showToast("error", (error as Error).message || "Failed to import bookmarks");
                 console.error("Error parsing bookmark file:", error);
+            } finally {
+                if (fileUploadRef.current) {
+                    fileUploadRef.current.clear();
+                }
             }
         }
     };
@@ -306,6 +299,7 @@ const Manage: React.FC = () => {
         <div className='card py-4 px-4'>
             <div className='flex align-items-center justify-content-end'>
                 <FileUpload
+                    ref={fileUploadRef}
                     className='mb-4 mr-2'
                     accept=".html"
                     chooseOptions={{ icon: 'pi pi-upload' }}
