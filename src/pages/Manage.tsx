@@ -181,6 +181,22 @@ const Manage: React.FC = () => {
         }
     };
 
+    const handleCopyUrl = (categoryIndex: number, websiteIndex: number) => {
+        const website = categories[categoryIndex]?.websites && categories[categoryIndex].websites[websiteIndex];
+
+        if (website) {
+            let copyText = website.url;
+            navigator.clipboard.writeText(copyText)
+                .then(() => {
+                    showToast("success", "Copied to clipboard successfully");
+                })
+                .catch(err => {
+                    showToast("error", "Failed to copy to clipboard");
+                    console.error("Could not copy text: ", err);
+                });
+        }
+    };
+
     const rowExpansionTemplate = (data: CategoryI) => {
         return (
             <>
@@ -224,6 +240,11 @@ const Manage: React.FC = () => {
                         header="Actions"
                         body={(_rowData: WebsiteI, options) => (
                             <>
+                                <Button
+                                    className='mr-2 custom-button'
+                                    icon="pi pi-copy font-semibold text-sm"
+                                    onClick={() => handleCopyUrl(data.no, options.rowIndex)}
+                                />
                                 <Button
                                     className='bg-warning border-warning text-white mr-2 custom-button'
                                     icon="pi pi-pencil font-semibold text-sm"
