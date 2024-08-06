@@ -115,7 +115,7 @@ const AddWebsiteModal: React.FC<AddWebsiteModalProps> = ({ visible, setVisible, 
                                     <ErrorMessage name="imageType" component="small" className="p-error ml-1" />
                                 </div>
                                 <div className="flex flex-column gap-2 col-6">
-                                    <label htmlFor="image">Image</label>
+                                    <label htmlFor="image">{values.imageType === "icon" ? "Icon" : "Image"}</label>
                                     {values.imageType === "icon" ? (
                                         <IconDropdown value={values.image} onChange={(value) => setFieldValue('image', value)} icons={icons} />
                                     ) : (
