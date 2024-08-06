@@ -300,6 +300,13 @@ const Manage: React.FC = () => {
         }
     };
 
+    const cancelUpload = () => {
+        if (fileUploadRef.current) {
+            fileUploadRef.current.clear();
+            setLoading(false);
+        }
+    }
+
     return (
         <div className='card py-4 px-4'>
             <div className='flex align-items-center justify-content-end'>
@@ -311,7 +318,9 @@ const Manage: React.FC = () => {
                     chooseLabel='Upload Bookmarks'
                     mode="basic"
                     onSelect={handleBookmarkUpload}
-                    disabled={loading} />
+                    disabled={loading} 
+                />
+                {loading && <Button icon="pi pi-times" className='mb-4 mr-2' onClick={cancelUpload}/>}
                 <Button
                     label="Add Category"
                     icon="pi pi-plus"
