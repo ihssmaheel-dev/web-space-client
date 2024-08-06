@@ -51,7 +51,7 @@ export async function fetchWebsiteInfo(url: string) {
         };
 
     } catch (error) {
-        console.error('Error fetching website information:', error);
+        // console.error('Error fetching website information:', error);
         return null;
     }
 }
