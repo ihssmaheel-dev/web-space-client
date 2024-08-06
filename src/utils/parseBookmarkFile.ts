@@ -15,9 +15,6 @@ export const parseBookmarkFile = async (file: File): Promise<{ categories: Categ
 
             const content = e.target?.result as string;
 
-            console.log("elll", /<!DOCTYPE NETSCAPE-Bookmark-file-1>/i.test(content));
-            
-
             if(!/<!DOCTYPE NETSCAPE-Bookmark-file-1>/i.test(content)) {
                 errorMessage = 'Please upload a valid bookmark file.';
                 reject(new Error(errorMessage));
