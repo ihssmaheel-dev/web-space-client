@@ -46,7 +46,7 @@
 .url-cell {
     text-decoration: none;
     display: inline-block;
-    max-width: 200px;
+    max-width: 250px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -54,5 +54,19 @@
 }
 
 .url-cell:hover {
+    text-decoration: underline;
+}
+
+.wrapping-cell {
+    text-decoration: none;
+    display: inline-block;
+    max-width: 300px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+}
+
+.wrapping-cell:hover {
     text-decoration: underline;
 }
