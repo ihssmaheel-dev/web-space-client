@@ -80,7 +80,7 @@ const WebsitesGrid: React.FC<WebsitesGridProps> = ({
     const [sortMethod, setSortMethod] = useLocalStorage<SortMethod>('sortBy', 'Default');
     const [loading, setLoading] = useState(true);
     
-    const sortMethods: SortMethod[] = ['Default', 'Ordered' ,'Name', 'Most used'];
+    const sortMethods: SortMethod[] = ['Default', 'Name', 'Most used'];
 
     const sensors = useSensors(
         useSensor(PointerSensor),
