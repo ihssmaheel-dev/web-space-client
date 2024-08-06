@@ -231,6 +231,7 @@ const Manage: React.FC = () => {
                         field="name"
                         header="Website Name" 
                         headerClassName={customHeader}
+                        body={(rowData: WebsiteI) => (<a className='wrapping-cell' href={`${rowData?.url}`} target="_blank" onClick={() => logVisit(rowData?.id)} title={rowData?.name}>{rowData?.name}</a>) || ""}
                     />
                     <Column 
                         field="url"
