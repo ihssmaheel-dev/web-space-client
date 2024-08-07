@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
@@ -307,9 +307,29 @@ const Manage: React.FC = () => {
         }
     }
 
+    useEffect(() => {
+        const handleMessage = (event: MessageEvent) => {
+            if (event.data.type === 'CHROME_BOOKMARKS_SYNC') {
+                const bookmarks = event.data.bookmarks;
+                console.log(bookmarks);
+            }
+        };
+
+        window.addEventListener('message', handleMessage);
+
+        return () => {
+            window.removeEventListener('message', handleMessage);
+        };
+    }, []);
+
+    const triggerSync = () => {
+        window.postMessage({ type: "TRIGGER_CHROME_SYNC" });
+    };
+
     return (
         <div className='card py-4 px-4'>
             <div className='flex align-items-center justify-content-end'>
+                <Button label='Sync Chrome Bookmarks' icon="pi pi-sync" className='mb-4 mr-2' onClick={triggerSync}/>
                 <FileUpload
                     ref={fileUploadRef}
                     className='mb-4 mr-2'

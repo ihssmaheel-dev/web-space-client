@@ -10,5 +10,13 @@
   <body id="body" class="bg-gray-900">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-  </body>
-</html>
+    <script>
+      window.addEventListener('message', (event) => {
+        if (event.data.type === "TRIGGER_CHROME_SYNC") {
+          if (chrome && chrome.runtime && chrome.runtime.sendMessage) {
+            chrome.runtime.sendMessage({ type: 'TRIGGER_SYNC' });
+          }
+        }
+      });
+    </script>
+    <script>
