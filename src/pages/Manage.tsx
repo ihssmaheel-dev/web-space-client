@@ -17,6 +17,7 @@ import { convert } from 'html-to-text';
 import useTheme from '../hooks/useTheme';
 import { FileUpload, FileUploadSelectEvent } from 'primereact/fileupload';
 import { parseBookmarkFile } from '../utils/parseBookmarkFile';
+import { parseChromeBookmarks } from '../utils/parseChromeBookmarks';
 
 interface SelectedWebsite {
     categoryIndex: number;
@@ -308,10 +309,21 @@ const Manage: React.FC = () => {
     }
 
     useEffect(() => {
-        const handleMessage = (event: MessageEvent) => {
-            if (event.data.type === 'CHROME_BOOKMARKS_SYNC') {
-                const bookmarks = event.data.bookmarks;
-                console.log(bookmarks);
+        const handleMessage = async (event: MessageEvent) => {
+            try {
+                if (event.data.type === 'CHROME_BOOKMARKS_SYNC') {
+                    const bookmarks = event.data.bookmarks;
+                    const result = await parseChromeBookmarks(bookmarks);
+
+                    console.log(result);
+                    
+                    
+                    setCategories(result.categories);
+                    showToast("success", "Bookmarks synced successfully");
+                }
+            } catch (error) {
+                showToast("error", "Something went wrong while syncing bookmarks");
+                console.error("Error syncing bookmarks:", error);
             }
         };
 
@@ -323,7 +335,7 @@ const Manage: React.FC = () => {
     }, []);
 
     const triggerSync = () => {
-        window.postMessage({ type: "TRIGGER_CHROME_SYNC" });
+        window.postMessage({ type: "TRIGGER_CHROME_SYNC" }, "*");
     };
 
     return (
