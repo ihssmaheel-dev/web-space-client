@@ -1,17 +1,15 @@
 import { CategoryI, WebsiteI } from '../types';
-import { getLocalStorageValue } from './localStorageUtils';
-import { fetchWebsiteInfo } from './fetchWebsiteInfo'; // Adjust the import based on your project structure
+import { getLocalStorageValue, setLocalStorageValue } from './localStorageUtils';
+import { fetchWebsiteInfo } from './fetchWebsiteInfo';
 
-export const parseBookmarkFile = async (file: File): Promise<{ categories: CategoryI[], websites: WebsiteI[] }> => {
+export const parseBookmarkFile = async (file: File): Promise<{ categories: CategoryI[] }> => {
     const existingCategories: CategoryI[] = getLocalStorageValue("categories") || [];
-    const categoryNames = existingCategories.map(category => category.name);
 
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = async (e) => {
-            const categories: CategoryI[] = [];
-            const websites: WebsiteI[] = [];
-            let categoryIndex = 0;
+            const categories: CategoryI[] = [...existingCategories];
+            let categoryIndex = categories.length;
             let errorMessage: string | null = null;
 
             const content = e.target?.result as string;
@@ -29,14 +27,8 @@ export const parseBookmarkFile = async (file: File): Promise<{ categories: Categ
                 const links = folder.querySelectorAll(':scope > dl > dt > a');
                 const subfolders = folder.querySelectorAll(':scope > dl > dt > h3');
 
-                // Check if category name already exists
-                // if (categoryNames.includes(title)) {
-                //     errorMessage = `Category name "${title}" already exists.`;
-                //     return undefined; // Skip adding this category
-                // }
-
-                let category: CategoryI | undefined;
-                if (links.length !== 0) {
+                let category = categories.find(cat => cat.name === title);
+                if (!category && links.length !== 0) {
                     category = {
                         id: crypto.randomUUID(),
                         no: categoryIndex,
@@ -45,44 +37,46 @@ export const parseBookmarkFile = async (file: File): Promise<{ categories: Categ
                         websites: [],
                         createdAt: Date.now(),
                     };
+                    categories.push(category);
                     categoryIndex++;
                 }
 
-                if (links.length !== 0) {
-                    for (const [websiteIndex, link] of Array.from(links).entries()) {
-                        const website: WebsiteI = {
-                            no: websiteIndex,
-                            id: crypto.randomUUID(),
-                            name: link.textContent?.trim() || 'Untitled',
-                            url: link.getAttribute('href') || '',
-                            imageType: 'icon',
-                            image: 'pi-globe',
-                            createdAt: Date.now(),
-                        };
+                if (category && links.length !== 0) {
+                    for (const [_websiteIndex, link] of Array.from(links).entries()) {
+                        const url = link.getAttribute('href') || '';
+                        let website = category?.websites?.find(w => w.url === url);
 
-                        const fetchedInfo = await fetchWebsiteInfo(website.url);
+                        if (!website) {
+                            website = {
+                                no: category?.websites?.length || 0,
+                                id: crypto.randomUUID(),
+                                name: link.textContent?.trim() || 'Untitled',
+                                url: url,
+                                imageType: 'icon',
+                                image: 'pi-globe',
+                                createdAt: Date.now(),
+                            };
 
-                        if (fetchedInfo) {
-                            if (!fetchedInfo.title.startsWith("error")) {
-                                website.name = fetchedInfo.title || website.name;
+                            const fetchedInfo = await fetchWebsiteInfo(website.url);
+
+                            if (fetchedInfo) {
+                                if (!fetchedInfo.title.startsWith("error")) {
+                                    website.name = fetchedInfo.title || website.name;
+                                }
+                                website.image = fetchedInfo.iconUrl || website.image;
+                                if (fetchedInfo.iconUrl) {
+                                    website.imageType = 'image';
+                                }
                             }
-                            website.image = fetchedInfo.iconUrl || website.image;
-                            if (fetchedInfo.iconUrl) {
-                                website.imageType = 'image';
-                            }
+
+                            category?.websites?.push(website);
                         }
-
-                        category?.websites?.push(website);
-                        websites.push(website);
                     }
                 }
 
                 if (subfolders.length !== 0) {
                     for (const subfolder of Array.from(subfolders)) {
-                        const subCategory = await processFolder(subfolder.parentElement as Element);
-                        if (subCategory) {
-                            categories.push(subCategory);
-                        }
+                        await processFolder(subfolder.parentElement as Element);
                     }
                 }
 
@@ -93,17 +87,14 @@ export const parseBookmarkFile = async (file: File): Promise<{ categories: Categ
 
             if (topLevelFolders.length !== 0) {
                 for (const folder of Array.from(topLevelFolders)) {
-                    const category = await processFolder(folder);
-                    if (category) {
-                        categories.push(category);
-                    }
+                    await processFolder(folder);
                 }
             }
 
             if (errorMessage) {
                 reject(new Error(errorMessage));
             } else {
-                resolve({ categories, websites });
+                resolve({ categories });
             }
         };
 
