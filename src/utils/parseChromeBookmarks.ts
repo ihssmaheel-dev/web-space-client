@@ -1,5 +1,5 @@
 import { CategoryI, WebsiteI } from '../types';
-import { getLocalStorageValue, setLocalStorageValue } from './localStorageUtils';
+import { getLocalStorageValue } from './localStorageUtils';
 import { fetchWebsiteInfo } from './fetchWebsiteInfo';
 
 interface ChromeBookmark {
@@ -18,32 +18,24 @@ export const parseChromeBookmarks = async (bookmarks: ChromeBookmark[]): Promise
     const categories: CategoryI[] = [...existingCategories];
     let categoryIndex = categories.length;
 
-    const processFolder = async (object: ChromeBookmark, _parentCategory?: CategoryI): Promise<CategoryI | undefined> => {
-        if (!object.children) return;
+    const processFolder = async (folder: ChromeBookmark, _parentCategory?: CategoryI): Promise<CategoryI | undefined> => {
+        if (!folder.children) return;
 
-        // Count the number of websites in this folder
-        const websiteCount = object.children.filter(child => child.url).length;
-
-        // If the folder is empty or has no name, skip it
-        if (websiteCount === 0 || !object.title.trim()) {
-            return;
-        }
-
-        let category = categories.find(cat => cat.name === object.title);
+        let category = categories.find(cat => cat.name === folder.title);
         if (!category) {
             category = {
-                id: object.id,
+                id: folder.id,
                 no: categoryIndex,
-                name: object.title,
+                name: folder.title,
                 icon: 'pi-stop',
                 websites: [],
-                createdAt: object.dateAdded,
+                createdAt: folder.dateAdded,
             };
             categories.push(category);
             categoryIndex++;
         }
 
-        for (const child of object.children) {
+        for (const child of folder.children) {
             if (child.url) {
                 let website = category?.websites?.find(w => w.url === child.url);
 
@@ -84,8 +76,7 @@ export const parseChromeBookmarks = async (bookmarks: ChromeBookmark[]): Promise
         await processFolder(bookmark);
     }
 
-    // Remove any categories that ended up empty after processing
-    const nonEmptyCategories = categories.filter(category => category!.websites!.length > 0);
+    const nonEmptyCategories: CategoryI[] = categories.filter(category => category!.websites!.length > 0);
 
     return { categories: nonEmptyCategories };
 };
