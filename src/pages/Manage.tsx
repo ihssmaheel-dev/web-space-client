@@ -22,7 +22,7 @@ interface SelectedWebsite {
     categoryIndex: number;
     websiteIndex: number;
     title?: string;
-    websites?: any[];
+    website?: WebsiteI;
 }
 
 const Manage: React.FC = () => {
@@ -69,7 +69,7 @@ const Manage: React.FC = () => {
     };
 
     const handleEditWebsite = (categoryIndex: number, websiteIndex: number) => {
-        setSelectedWebsite({ categoryIndex, websiteIndex });
+        setSelectedWebsite({ categoryIndex, websiteIndex, website: categories[categoryIndex]?.websites && categories[categoryIndex]?.websites[websiteIndex] });
         setEditWebsiteModalVisible(true);
     };
 
@@ -414,7 +414,7 @@ const Manage: React.FC = () => {
                 setVisible={setEditWebsiteModalVisible}
                 categoryIndex={selectedWebsite?.categoryIndex ?? 0}
                 categories={categories}
-                website={selectedWebsite?.websites?.[selectedWebsite?.categoryIndex]?.[selectedWebsite?.websiteIndex]}
+                website={selectedWebsite?.website || null}
                 onUpdateWebsite={handleUpdateWebsite}
             />
 
