@@ -28,19 +28,7 @@ const Home: React.FC = () => {
     const [selectedWebsite, setSelectedWebsite] = useState<{ categoryIndex: number, websiteIndex: number, title?: string } | null>(null);
     const [selectedCategoryIndex, setSelectedCategoryIndex] = useState<number | null>(null);
     
-    const categoriesObj: CategoryI[] = [
-        {
-            no: 0,
-            id: crypto.randomUUID(),
-            name: 'Favorites',
-            icon: 'pi-heart',
-            createdAt: Date.now(),
-            websites: [
-                { no: 0, id: crypto.randomUUID(), name: "youtube", image: "pi-youtube", imageType: "icon", url: "https://www.youtube.com", createdAt: Date.now() },
-                { no: 1, id: crypto.randomUUID(), name: "google", image: "pi-google", imageType: "icon", url: "https://www.google.com", createdAt: Date.now() },
-            ]
-        }
-    ];
+    const categoriesObj: CategoryI[] = [];
 
     const [categories, setCategories] = useLocalStorage<CategoryI[]>("categories", categoriesObj);
 
