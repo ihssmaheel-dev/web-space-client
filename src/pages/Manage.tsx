@@ -47,6 +47,7 @@ const Manage: React.FC = () => {
     const [confirmDeleteVisibleWebsite, setConfirmDeleteVisibleWebsite] = useState(false);
 
     const [loading, setLoading] = useState(false);
+    const [syncLoading, setSyncLoading] = useState(false);
 
     const handleAddCategory = (newCategory: CategoryI) => {
         setCategories(prevCategories => [...prevCategories, newCategory]);
@@ -94,6 +95,8 @@ const Manage: React.FC = () => {
     };
 
     const handleWebsiteDelete = (categoryIndex: number, websiteIndex: number) => {
+        console.log(categoryIndex, websiteIndex);
+        
         setSelectedWebsite({ categoryIndex, websiteIndex, title: categories[categoryIndex].websites ? categories[categoryIndex].websites[websiteIndex].name : "" });
         setConfirmDeleteVisibleWebsite(true);
     };
@@ -312,13 +315,11 @@ const Manage: React.FC = () => {
         const handleMessage = async (event: MessageEvent) => {
             try {
                 if (event.data.type === 'CHROME_BOOKMARKS_SYNC') {
+                    setSyncLoading(true);
                     const bookmarks = event.data.bookmarks;
                     const result = await parseChromeBookmarks(bookmarks);
-
-                    console.log(result);
-                    
-                    
                     setCategories(result.categories);
+                    setSyncLoading(false);
                     showToast("success", "Bookmarks synced successfully");
                 }
             } catch (error) {
@@ -341,7 +342,7 @@ const Manage: React.FC = () => {
     return (
         <div className='card py-4 px-4'>
             <div className='flex align-items-center justify-content-end'>
-                <Button label='Sync Chrome Bookmarks' icon="pi pi-sync" className='mb-4 mr-2' onClick={triggerSync}/>
+                <Button label='Sync Chrome Bookmarks' icon={`pi ${syncLoading ? "pi-spin pi-spinner" : "pi-sync"}`} className='mb-4 mr-2' onClick={triggerSync} disabled={syncLoading}/>
                 <FileUpload
                     ref={fileUploadRef}
                     className='mb-4 mr-2'
