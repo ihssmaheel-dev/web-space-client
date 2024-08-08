@@ -14,9 +14,9 @@
   <script type="module" src="/src/main.tsx"></script>
   <script>
     window.addEventListener('message', (event) => {
-      if (event.data.type === "TRIGGER_CHROME_SYNC") {
+      if (event.data.source === "web-space" && event.data.type === "TRIGGER_CHROME_SYNC") {
         if (chrome && chrome.runtime && chrome.runtime.sendMessage) {
-          chrome.runtime.sendMessage({ type: 'TRIGGER_SYNC' });
+          chrome.runtime.sendMessage({ source: 'web-space',type: 'TRIGGER_SYNC' });
         }
       }
     });
