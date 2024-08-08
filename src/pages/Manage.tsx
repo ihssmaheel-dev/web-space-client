@@ -42,16 +42,20 @@ const Manage: React.FC = () => {
     const [editWebsiteModalVisible, setEditWebsiteModalVisible] = useState(false);
     const [selectedWebsite, setSelectedWebsite] = useState<SelectedWebsite | null>(null);
     const [selectedCategoryIndex, setSelectedCategoryIndex] = useState<number>(0);
-    
+
     const [confirmDeleteVisibleCategory, setConfirmDeleteVisibleCategory] = useState(false);
     const [confirmDeleteVisibleWebsite, setConfirmDeleteVisibleWebsite] = useState(false);
 
     const [loading, setLoading] = useState(false);
     const [syncLoading, setSyncLoading] = useState(false);
+    const [syncWrong, setSyncWrong] = useState(false);
+    const syncTimeout = useRef<NodeJS.Timeout | null>(null);
 
     const handleAddCategory = (newCategory: CategoryI) => {
-        setCategories(prevCategories => [...prevCategories, newCategory]);
-        showToast("success", "Category Added Successfully");
+        window.postMessage({
+            type: "CREATE_CHROME_BOOKMARK",
+            bookmark: { title: newCategory.name }
+        }, "*");
     };
 
     const handleEditCategory = (index: number) => {
@@ -61,12 +65,13 @@ const Manage: React.FC = () => {
 
     const handleUpdateCategory = (updatedCategory: CategoryI) => {
         if (updatedCategory) {
-            const updatedCategories = [...categories];
-            updatedCategories[updatedCategory.no] = updatedCategory;
-            setCategories(updatedCategories);
-            setEditCategoryVisible(false);
-            setSelectedCategoryIndex(0);
-            showToast("success", "Category updated successfully");
+            console.log(updatedCategory);
+
+            window.postMessage({
+                type: "EDIT_CHROME_BOOKMARK",
+                id: updatedCategory.id,
+                newTitle: updatedCategory.name
+            }, "*");
         }
     };
 
@@ -77,15 +82,12 @@ const Manage: React.FC = () => {
 
     const handleUpdateWebsite = (updatedWebsite: WebsiteI) => {
         if (selectedWebsite) {
-            const { categoryIndex, websiteIndex } = selectedWebsite;
-            const updatedCategories = [...categories];
-            if (updatedCategories[categoryIndex]?.websites) {
-                updatedCategories[categoryIndex].websites[websiteIndex] = updatedWebsite;
-            }
-            setCategories(updatedCategories);
-            setEditWebsiteModalVisible(false);
-            setSelectedWebsite(null);
-            showToast("success", "Website updated successfully");
+            window.postMessage({
+                type: "EDIT_CHROME_BOOKMARK",
+                id: updatedWebsite.id,
+                newTitle: updatedWebsite.name,
+                newUrl: updatedWebsite.url
+            }, "*");
         }
     };
 
@@ -95,8 +97,6 @@ const Manage: React.FC = () => {
     };
 
     const handleWebsiteDelete = (categoryIndex: number, websiteIndex: number) => {
-        console.log(categoryIndex, websiteIndex);
-        
         setSelectedWebsite({ categoryIndex, websiteIndex, title: categories[categoryIndex].websites ? categories[categoryIndex].websites[websiteIndex].name : "" });
         setConfirmDeleteVisibleWebsite(true);
     };
@@ -104,30 +104,33 @@ const Manage: React.FC = () => {
     const confirmDeleteCategory = (e: React.MouseEvent) => {
         e.stopPropagation();
         if (selectedCategoryIndex !== null) {
-            if (categories.length === 1) {
-                showToast("error", "Cannot delete last category");
-                setConfirmDeleteVisibleCategory(false);
-                return;
-            }
-
-            const updatedCategories = [...categories];
-            updatedCategories.splice(selectedCategoryIndex, 1);
-            setCategories(updatedCategories);
-            setConfirmDeleteVisibleCategory(false);
-            showToast("success", "Category deleted successfully");
+            const categoryToDelete = categories[selectedCategoryIndex];
+            window.postMessage({
+                type: "DELETE_CHROME_BOOKMARK",
+                id: categoryToDelete.id
+            }, "*");
         }
+
+        setConfirmDeleteVisibleCategory(false);
     }
 
     const confirmDeleteWebsite = (e: React.MouseEvent) => {
         e.stopPropagation();
         if (selectedWebsite !== null) {
             const { categoryIndex, websiteIndex } = selectedWebsite;
-            const updatedCategories = [...categories];
-            updatedCategories[categoryIndex].websites?.splice(websiteIndex, 1);
-            setCategories(updatedCategories);
-            setConfirmDeleteVisibleWebsite(false);
-            showToast("success", "Website deleted successfully");
+            if (categories && categories[categoryIndex] && categories[categoryIndex].websites) {
+                const websiteToDelete = categories[categoryIndex].websites[websiteIndex];
+                window.postMessage({
+                    type: "DELETE_CHROME_BOOKMARK",
+                    id: websiteToDelete.id
+                }, "*");
+            } else {
+                showToast("error", "Error deleting website");
+            }
+
         }
+
+        setConfirmDeleteVisibleWebsite(false);
     };
 
     const cancelDelete = (e: React.MouseEvent) => {
@@ -137,15 +140,11 @@ const Manage: React.FC = () => {
     };
 
     const handleAddWebsite = (categoryIndex: number, newWebsite: WebsiteI) => {
-        setCategories(prevCategories => {
-            const updatedCategories = [...prevCategories];
-            const category = updatedCategories[categoryIndex];
-            if (category) {
-                category.websites = category.websites ? [...category.websites, newWebsite] : [newWebsite];
-            }
-            return updatedCategories;
-        });
-        showToast("success", "Website Added Successfully");
+        const category = categories[categoryIndex];
+        window.postMessage({
+            type: "CREATE_CHROME_BOOKMARK",
+            bookmark: { parentId: category.id, title: newWebsite.name, url: newWebsite.url }
+        }, "*");
     };
 
     const handleOpenAll = (categoryIndex: number) => {
@@ -208,6 +207,54 @@ const Manage: React.FC = () => {
         }
     };
 
+    useEffect(() => {
+        const handleBookmarkUpdate = async (event: MessageEvent) => {
+            if (event.data.type === "CHROME_BOOKMARKS_SYNC") {
+                if (syncTimeout.current !== null) {
+                    clearTimeout(syncTimeout.current);
+                    setSyncWrong(false);
+                }
+
+                const { categories } = await parseChromeBookmarks(event.data.bookmarks);
+                setCategories(categories);
+
+                showToast("success", "Bookmarks synced with Chrome");
+                setSyncLoading(false);
+            } else if (event.data.type === "CHROME_BOOKMARK_UPDATED") {
+                showToast("success", "Bookmark updated successfully");
+                window.postMessage({ source: "web-space", type: "TRIGGER_CHROME_SYNC" }, "*");
+            } else if (event.data.type === "CHROME_BOOKMARK_DELETED") {
+                showToast("success", "Bookmark deleted successfully");
+                window.postMessage({ source: "web-space", type: "TRIGGER_CHROME_SYNC" }, "*");
+            } else if (event.data.type === "CHROME_BOOKMARK_CREATED") {
+                showToast("success", "Bookmark created successfully");
+                window.postMessage({ source: "web-space", type: "TRIGGER_CHROME_SYNC" }, "*");
+            }
+        };
+
+        window.addEventListener('message', handleBookmarkUpdate);
+
+        return () => {
+            window.removeEventListener('message', handleBookmarkUpdate);
+            if (syncTimeout.current !== null) {
+                clearTimeout(syncTimeout.current);
+            }
+        };
+    }, []);
+
+    const triggerSync = () => {
+        setSyncLoading(true);
+        setSyncWrong(false);
+
+        syncTimeout.current = setTimeout(() => {
+            setSyncWrong(true);
+            setSyncLoading(false);
+            showToast("error", "Please check the Extension is installed in Chrome");
+        }, 4000);
+
+        window.postMessage({ source: "web-space", type: "TRIGGER_CHROME_SYNC" }, "*");
+    };
+
     const customHeader = `custom-header ${theme === 'theme-light' && 'dark'}`;
 
     const rowExpansionTemplate = (data: CategoryI) => {
@@ -224,136 +271,70 @@ const Manage: React.FC = () => {
                         }}
                     />
                 </div>
-            <div className='px-4 py-4'>
-                <DataTable value={data.websites} dataKey="id">
-                    <Column 
-                        header="S.No."
-                        body={(_rowData: WebsiteI, options) => options.rowIndex + 1}
-                        headerClassName={customHeader}
-                    />
-                    <Column 
-                        field="name"
-                        header="Website Name" 
-                        headerClassName={customHeader}
-                        body={(rowData: WebsiteI) => (<a className='wrapping-cell' href={`${rowData?.url}`} target="_blank" onClick={() => logVisit(rowData?.id)} title={rowData?.name}>{rowData?.name}</a>) || ""}
-                    />
-                    <Column 
-                        field="url"
-                        header="URL"
-                        headerClassName={customHeader}
-                        body={(rowData: WebsiteI) => (<a href={`${rowData?.url}`} className='url-cell' target="_blank" onClick={() => logVisit(rowData?.id)}>{rowData?.url}</a>)} 
-                    />
-                    <Column 
-                        field="icon"
-                        header="Icon / Image"
-                        headerClassName={customHeader}
-                        body={(rowData: WebsiteI) => (rowData.imageType === "icon" ? <i className={`pi ${rowData?.image} text-2xl`}></i> : <img src={rowData?.image} alt="icon" height={24} width={24} />) || ""}
-                    />
-                    <Column 
-                        field="visits"
-                        header="Total Visits"
-                        headerClassName={customHeader}
-                        body={(rowData: WebsiteI) => userActivities[rowData?.id] || 0} 
-                    />
-                    <Column
-                        header="Actions"
-                        headerClassName={customHeader}
-                        body={(_rowData: WebsiteI, options) => (
-                            <>
-                                <Button
-                                    className='mr-2 custom-button'
-                                    icon="pi pi-copy font-semibold text-sm"
-                                    onClick={() => handleCopyUrl(data.no, options.rowIndex)}
-                                />
-                                <Button
-                                    className='bg-warning border-warning text-white mr-2 custom-button'
-                                    icon="pi pi-pencil font-semibold text-sm"
-                                    onClick={() => handleEditWebsite(data.no, options.rowIndex)}
-                                />
-                                <Button
-                                    className='bg-danger border-danger text-white custom-button'
-                                    icon="pi pi-trash text-sm"
-                                    onClick={() => handleWebsiteDelete(data.no, options.rowIndex)}
-                                />
-                            </>
-                        )}
-                    />
-                </DataTable>
-            </div>
+                <div className='px-4 py-4'>
+                    <DataTable value={data.websites} dataKey="id">
+                        <Column
+                            header="S.No."
+                            body={(_rowData: WebsiteI, options) => options.rowIndex + 1}
+                            headerClassName={customHeader}
+                        />
+                        <Column
+                            field="name"
+                            header="Website Name"
+                            headerClassName={customHeader}
+                            body={(rowData: WebsiteI) => (<a className='wrapping-cell' href={`${rowData?.url}`} target="_blank" onClick={() => logVisit(rowData?.id)} title={rowData?.name}>{rowData?.name}</a>) || ""}
+                        />
+                        <Column
+                            field="url"
+                            header="URL"
+                            headerClassName={customHeader}
+                            body={(rowData: WebsiteI) => (<a href={`${rowData?.url}`} className='url-cell' target="_blank" onClick={() => logVisit(rowData?.id)}>{rowData?.url}</a>)}
+                        />
+                        <Column
+                            field="icon"
+                            header="Icon / Image"
+                            headerClassName={customHeader}
+                            body={(rowData: WebsiteI) => (rowData.imageType === "icon" ? <i className={`pi ${rowData?.image} text-2xl`}></i> : <img src={rowData?.image} alt="icon" height={24} width={24} />) || ""}
+                        />
+                        <Column
+                            field="visits"
+                            header="Total Visits"
+                            headerClassName={customHeader}
+                            body={(rowData: WebsiteI) => userActivities[rowData?.id] || 0}
+                        />
+                        <Column
+                            header="Actions"
+                            headerClassName={customHeader}
+                            body={(_rowData: WebsiteI, options) => (
+                                <>
+                                    <Button
+                                        className='mr-2 custom-button'
+                                        icon="pi pi-copy font-semibold text-sm"
+                                        onClick={() => handleCopyUrl(data.no, options.rowIndex)}
+                                    />
+                                    <Button
+                                        className='bg-warning border-warning text-white mr-2 custom-button'
+                                        icon="pi pi-pencil font-semibold text-sm"
+                                        onClick={() => handleEditWebsite(data.no, options.rowIndex)}
+                                    />
+                                    <Button
+                                        className='bg-danger border-danger text-white custom-button'
+                                        icon="pi pi-trash text-sm"
+                                        onClick={() => handleWebsiteDelete(data.no, options.rowIndex)}
+                                    />
+                                </>
+                            )}
+                        />
+                    </DataTable>
+                </div>
             </>
         );
-    };
-
-    const handleBookmarkUpload = async (event: FileUploadSelectEvent) => {
-        const file = event.files?.[0];
-        if (file) {
-            setLoading(true); // Start loading
-            try {
-                const { categories } = await parseBookmarkFile(file);
-                setCategories(categories);
-                showToast("success", "Bookmarks imported successfully");
-            } catch (error) {
-                showToast("error", (error as Error).message || "Failed to import bookmarks");
-                console.error("Error parsing bookmark file:", error);
-            } finally {
-                setLoading(false); // End loading
-                if (fileUploadRef.current) {
-                    fileUploadRef.current.clear(); // Reset the file upload component
-                }
-            }
-        }
-    };
-
-    const cancelUpload = () => {
-        if (fileUploadRef.current) {
-            fileUploadRef.current.clear();
-            setLoading(false);
-        }
-    }
-
-    useEffect(() => {
-        const handleMessage = async (event: MessageEvent) => {
-            try {
-                if (event.data.type === 'CHROME_BOOKMARKS_SYNC') {
-                    setSyncLoading(true);
-                    const bookmarks = event.data.bookmarks;
-                    const result = await parseChromeBookmarks(bookmarks);
-                    setCategories(result.categories);
-                    setSyncLoading(false);
-                    showToast("success", "Bookmarks synced successfully");
-                }
-            } catch (error) {
-                showToast("error", "Something went wrong while syncing bookmarks");
-                console.error("Error syncing bookmarks:", error);
-            }
-        };
-
-        window.addEventListener('message', handleMessage);
-
-        return () => {
-            window.removeEventListener('message', handleMessage);
-        };
-    }, []);
-
-    const triggerSync = () => {
-        window.postMessage({ type: "TRIGGER_CHROME_SYNC" }, "*");
     };
 
     return (
         <div className='card py-4 px-4'>
             <div className='flex align-items-center justify-content-end'>
-                <Button label='Sync Chrome Bookmarks' icon={`pi ${syncLoading ? "pi-spin pi-spinner" : "pi-sync"}`} className='mb-4 mr-2' onClick={triggerSync} disabled={syncLoading}/>
-                <FileUpload
-                    ref={fileUploadRef}
-                    className='mb-4 mr-2'
-                    accept=".html"
-                    chooseOptions={{ icon: `pi ${loading ? "pi-spin pi-spinner" : "pi-upload"}` }}
-                    chooseLabel='Upload Bookmarks'
-                    mode="basic"
-                    onSelect={handleBookmarkUpload}
-                    disabled={loading} 
-                />
-                {loading && <Button icon="pi pi-times" className='mb-4 mr-2' onClick={cancelUpload}/>}
+                <Button label='Sync Chrome Bookmarks' icon={`pi ${syncLoading ? "pi-spin pi-spinner" : "pi-sync"}`} className='mb-4 mr-2' onClick={triggerSync} disabled={syncLoading} />
                 <Button
                     label="Add Category"
                     icon="pi pi-plus"
@@ -369,30 +350,30 @@ const Manage: React.FC = () => {
                 dataKey="id"
                 className="custom-datatable"
             >
-                <Column 
+                <Column
                     expander
                     style={{ width: '6rem' }}
                     headerClassName={customHeader}
                 />
-                <Column 
+                <Column
                     header="S.No."
                     headerClassName={customHeader}
                     body={(_rowData: CategoryI, options) => options.rowIndex + 1}
                 />
-                <Column 
+                <Column
                     field="name"
                     header="Category Name"
                     headerClassName={customHeader}
                 />
-                <Column 
+                <Column
                     header="No. of Websites"
                     headerClassName={customHeader}
                     body={(rowData: CategoryI) => rowData.websites?.length || 0}
                 />
-                <Column 
+                <Column
                     header="Actions"
                     headerClassName={customHeader}
-                    body={(_rowData: CategoryI, options) => (
+                    body={(rowData: CategoryI, options) => (
                         <>
                             <Button
                                 className='mr-2 custom-button'
@@ -404,16 +385,20 @@ const Manage: React.FC = () => {
                                 icon="pi pi-copy font-semibold text-sm"
                                 onClick={() => handleCopyAll(options.rowIndex)}
                             />
-                            <Button
-                                className='bg-warning border-warning text-white mr-2 custom-button'
-                                icon="pi pi-pencil font-semibold text-sm"
-                                onClick={() => handleEditCategory(options.rowIndex)}
-                            />
-                            <Button
-                                className='bg-danger border-danger text-white custom-button'
-                                icon="pi pi-trash font-semibold text-sm"
-                                onClick={() => handleDeleteCategory(options.rowIndex)}
-                            />
+                            {rowData.name.toLocaleLowerCase() !== ("Bookmarks Bar").toLocaleLowerCase() && (
+                                <>
+                                    <Button
+                                        className='bg-warning border-warning text-white mr-2 custom-button'
+                                        icon="pi pi-pencil font-semibold text-sm"
+                                        onClick={() => handleEditCategory(options.rowIndex)}
+                                    />
+                                    <Button
+                                        className='bg-danger border-danger text-white custom-button'
+                                        icon="pi pi-trash font-semibold text-sm"
+                                        onClick={() => handleDeleteCategory(options.rowIndex)}
+                                    />
+                                </>
+                            )}
                         </>
                     )}
                 />
