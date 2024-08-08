@@ -20,3 +20,18 @@ export interface CategoryI {
     createdAt: number;
     updatedAt?: number;
 }
+
+export interface ChromeBookmark {
+    children?: ChromeBookmark[];
+    dateAdded: number;
+    id: string;
+    index: number;
+    parentId: string;
+    title: string;
+    url?: string;
+    isRoot?: boolean; // Add isRoot property
+}
+
+export interface WebsiteInfoMap {
+    iconUrl: string;
+}
