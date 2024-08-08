@@ -79,7 +79,7 @@ const CategoryBar: React.FC<CategoryBarProps> = ({
                 onClick={() => navigate(`/home/category/${itemIndex + 1}`)}
             >
                 <i className={`pi pi-fw ${item.icon} mr-2`}></i>
-                <span className="font-bold">{item.name}</span>
+                <span className="font-bold white-space-nowrap">{item.name}</span>
                 {itemIndex === activeIndex && (
                     <>
                         <i
