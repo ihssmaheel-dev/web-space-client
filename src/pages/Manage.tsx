@@ -46,7 +46,6 @@ const Manage: React.FC = () => {
     const [confirmDeleteVisibleCategory, setConfirmDeleteVisibleCategory] = useState(false);
     const [confirmDeleteVisibleWebsite, setConfirmDeleteVisibleWebsite] = useState(false);
 
-    const [loading, setLoading] = useState(false);
     const [syncLoading, setSyncLoading] = useState(false);
     const [syncWrong, setSyncWrong] = useState(false);
     const syncTimeout = useRef<NodeJS.Timeout | null>(null);
