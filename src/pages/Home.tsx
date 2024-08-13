@@ -1,6 +1,5 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Toast } from 'primereact/toast';
 import AddCategoryModal from '../components/AddCategoryModal';
 import useLocalStorage from '../hooks/useLocalStorage';
 import AddWebsiteModal from '../components/AddWebsiteModal';
@@ -13,6 +12,9 @@ import { useToast } from '../contexts/ToastContexts';
 import useUserActivity from '../hooks/useUserActivity';
 import EditCategoryModal from '../components/EditCategoryModal';
 import { getLocalStorageValue } from '../utils/localStorageUtils';
+import useBookmarks from '../hooks/useBookmarks';
+import useCategories from '../hooks/useCategories';
+import useWebsites from '../hooks/useWebsites';
 
 const Home: React.FC = () => {
     const navigate = useNavigate();
@@ -32,54 +34,19 @@ const Home: React.FC = () => {
 
     const [categories, setCategories] = useLocalStorage<CategoryI[]>("categories", categoriesObj);
 
+    // const { syncLoading, triggerSync } = useBookmarks(setCategories);
+    const { handleAddCategory, handleUpdateCategory, handleDeleteCategory } = useCategories(categories, setCategories);
+    const { handleAddWebsite, handleUpdateWebsite, handleDeleteWebsite } = useWebsites(categories, setCategories);
+
     const categoriesLocal = getLocalStorageValue("categories");
     if(categoriesLocal === null) { setCategories(categoriesObj); }
 
     const category = selectedWebsite ? categories[selectedWebsite.categoryIndex] : null;
     const website = selectedWebsite && category && category.websites ? category?.websites[selectedWebsite.websiteIndex] : null;
 
-    const handleAddCategory = (newCategory: CategoryI) => {
-        setCategories(prevCategories => [...prevCategories, newCategory]);
-        showToast("success", "Category Added Successfully");
-    };
-
     const handleEditCategory = (index: number) => {
         setSelectedCategoryIndex(index);
         setEditCategoryVisible(true);
-    };
-
-    const handleUpdateCategory = (updatedCategory: CategoryI) => {
-        if(updatedCategory) {
-            setCategories(prevCategories => {
-                const updatedCategories = [...prevCategories];
-                updatedCategories[updatedCategory.no] = updatedCategory;
-                return updatedCategories;
-            });
-            setEditCategoryVisible(false);
-            setSelectedCategoryIndex(null);
-            showToast("success", "Category updated successfully");
-        }
-    }
-
-    const updateCategories = useCallback((newCategories: CategoryI[]) => {
-        setCategories(newCategories);
-    }, []);
-
-    const handleDeleteCategory = (index: number) => {
-        setSelectedCategoryIndex(index);
-        setConfirmDeleteVisible(true);
-    };
-
-    const handleAddWebsite = (categoryIndex: number, newWebsite: WebsiteI) => {
-        setCategories(prevCategories => {
-            const updatedCategories = [...prevCategories];
-            const category = updatedCategories[categoryIndex];
-            if (category) {
-                category.websites = category.websites ? [...category.websites, newWebsite] : [newWebsite];
-            }
-            return updatedCategories;
-        });
-        showToast("success", "Website Added Successfully");
     };
 
     const handleEditWebsite = (categoryIndex: number, websiteIndex: number) => {
@@ -87,37 +54,15 @@ const Home: React.FC = () => {
         setEditWebsiteModalVisible(true);
     }
 
-    const handleUpdateWebsite = (updatedWebsite: WebsiteI) => {
-        if (selectedWebsite) {
-            const { categoryIndex, websiteIndex } = selectedWebsite;
-            setCategories(prevCategories => {
-                const updatedCategories = [...prevCategories];
-                if (updatedCategories[categoryIndex]?.websites) {
-                    updatedCategories[categoryIndex].websites[websiteIndex] = updatedWebsite;
-                }
-                return updatedCategories;
-            });
-
-            setEditWebsiteModalVisible(false);
-            setSelectedWebsite(null);
-            showToast("success", "Website updated successfully");
-        }
-    }
-
-    const handleWebsiteDelete = (categoryIndex: number, websiteIndex: number) => {
-        setSelectedWebsite({ categoryIndex, websiteIndex, title: categories[categoryIndex].websites ? categories[categoryIndex].websites[websiteIndex].name : "" });
-        setConfirmDeleteVisible(true);
-    }
-
     const confirmDelete = (e: React.MouseEvent) => {
         e.stopPropagation();
         if (selectedWebsite !== null) {
             const { categoryIndex, websiteIndex } = selectedWebsite;
-            const updatedCategories = [...categories];
-            updatedCategories[categoryIndex].websites?.splice(websiteIndex, 1);
-            setCategories(updatedCategories);
+            const websiteId = categories && categories[categoryIndex] && categories[categoryIndex]?.websites && categories[categoryIndex]?.websites[websiteIndex]?.id;
+            if (websiteId !== undefined) {
+                handleDeleteWebsite(websiteId);
+            }
             setConfirmDeleteVisible(false);
-
             showToast("success", "Website deleted successfully");
         }
 
@@ -128,11 +73,8 @@ const Home: React.FC = () => {
                 return;
             }
 
-            const updatedCategories = [...categories];
-            updatedCategories.splice(selectedCategoryIndex, 1);
-            setCategories(updatedCategories);
+            handleDeleteCategory(categories[selectedCategoryIndex].id);
             setConfirmDeleteVisible(false);
-
             showToast("success", "Category deleted successfully");
         }
     };
@@ -175,15 +117,21 @@ const Home: React.FC = () => {
                 setAddCategoryVisible={setAddCategoryVisible}
                 handleOpenAll={handleOpenAll}
                 onEditCategory={handleEditCategory}
-                onDeleteCategory={handleDeleteCategory}
+                onDeleteCategory={(index) => {
+                    setSelectedCategoryIndex(index);
+                    setConfirmDeleteVisible(true);
+                }}
             />
             <WebsitesGrid
                 setAddWebsiteModalVisible={setAddWebsiteModalVisible}
                 categories={categories}
                 activeIndex={activeIndex}
                 handleEditWebsite={handleEditWebsite}
-                handleWebsiteDelete={handleWebsiteDelete}
-                updateCategories={updateCategories}
+                handleWebsiteDelete={(categoryIndex, websiteIndex) => {
+                    setSelectedWebsite({ categoryIndex, websiteIndex, title: categories[categoryIndex].websites ? categories[categoryIndex].websites[websiteIndex].name : "" });
+                    setConfirmDeleteVisible(true);
+                }}
+                updateCategories={setCategories}
             />
             <AddCategoryModal
                 visible={addCategoryVisible}
@@ -191,7 +139,8 @@ const Home: React.FC = () => {
                 categories={categories}
                 onAddCategory={handleAddCategory}
             />
-            <EditCategoryModal visible={editCategoryVisible}
+            <EditCategoryModal 
+                visible={editCategoryVisible}
                 setVisible={setEditCategoryVisible}
                 categories={categories}
                 category={categories[activeIndex]}
@@ -216,7 +165,7 @@ const Home: React.FC = () => {
                 visible={confirmDeleteVisible}
                 confirmDelete={confirmDelete}
                 cancelDelete={cancelDelete}
-                title={selectedWebsite?.title || ""}
+                title={selectedWebsite?.title || categories[selectedCategoryIndex || 0]?.name || ""}
             />
         </div>
     );

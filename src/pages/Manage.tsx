@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
@@ -15,9 +15,9 @@ import useLocalStorage from '../hooks/useLocalStorage';
 import useUserActivity from '../hooks/useUserActivity';
 import { convert } from 'html-to-text';
 import useTheme from '../hooks/useTheme';
-import { FileUpload, FileUploadSelectEvent } from 'primereact/fileupload';
-import { parseBookmarkFile } from '../utils/parseBookmarkFile';
-import { parseChromeBookmarks } from '../utils/parseChromeBookmarks';
+import useBookmarks from '../hooks/useBookmarks';
+import useCategories from '../hooks/useCategories';
+import useWebsites from '../hooks/useWebsites';
 
 interface SelectedWebsite {
     categoryIndex: number;
@@ -30,9 +30,12 @@ const Manage: React.FC = () => {
     const { theme } = useTheme();
     const { showToast } = useToast();
     const { logVisit } = useUserActivity();
-    const fileUploadRef = useRef<FileUpload>(null);
     const categoriesbbj = getLocalStorageValue<CategoryI[]>("categories") || [];
     const [categories, setCategories] = useLocalStorage("categories", categoriesbbj);
+
+    const { syncLoading, triggerSync } = useBookmarks(setCategories);
+    const { handleAddCategory, handleUpdateCategory, handleDeleteCategory } = useCategories(categories, setCategories);
+    const { handleAddWebsite, handleUpdateWebsite, handleDeleteWebsite } = useWebsites(categories, setCategories);
 
     const userActivities: { [key: string]: number } = getLocalStorageValue("userActivity") || {};
     const [expandedRows, setExpandedRows] = useState<any>(null);
@@ -42,36 +45,12 @@ const Manage: React.FC = () => {
     const [editWebsiteModalVisible, setEditWebsiteModalVisible] = useState(false);
     const [selectedWebsite, setSelectedWebsite] = useState<SelectedWebsite | null>(null);
     const [selectedCategoryIndex, setSelectedCategoryIndex] = useState<number>(0);
-
     const [confirmDeleteVisibleCategory, setConfirmDeleteVisibleCategory] = useState(false);
     const [confirmDeleteVisibleWebsite, setConfirmDeleteVisibleWebsite] = useState(false);
-
-    const [syncLoading, setSyncLoading] = useState(false);
-    const [syncWrong, setSyncWrong] = useState(false);
-    const syncTimeout = useRef<NodeJS.Timeout | null>(null);
-
-    const handleAddCategory = (newCategory: CategoryI) => {
-        window.postMessage({
-            type: "CREATE_CHROME_BOOKMARK",
-            bookmark: { title: newCategory.name }
-        }, "*");
-    };
 
     const handleEditCategory = (index: number) => {
         setSelectedCategoryIndex(index);
         setEditCategoryVisible(true);
-    };
-
-    const handleUpdateCategory = (updatedCategory: CategoryI) => {
-        if (updatedCategory) {
-            console.log(updatedCategory);
-
-            window.postMessage({
-                type: "EDIT_CHROME_BOOKMARK",
-                id: updatedCategory.id,
-                newTitle: updatedCategory.name
-            }, "*");
-        }
     };
 
     const handleEditWebsite = (categoryIndex: number, websiteIndex: number) => {
@@ -79,23 +58,12 @@ const Manage: React.FC = () => {
         setEditWebsiteModalVisible(true);
     };
 
-    const handleUpdateWebsite = (updatedWebsite: WebsiteI) => {
-        if (selectedWebsite) {
-            window.postMessage({
-                type: "EDIT_CHROME_BOOKMARK",
-                id: updatedWebsite.id,
-                newTitle: updatedWebsite.name,
-                newUrl: updatedWebsite.url
-            }, "*");
-        }
-    };
-
-    const handleDeleteCategory = (index: number) => {
+    const handleDeleteCategoryClick = (index: number) => {
         setSelectedCategoryIndex(index);
         setConfirmDeleteVisibleCategory(true);
     };
 
-    const handleWebsiteDelete = (categoryIndex: number, websiteIndex: number) => {
+    const handleWebsiteDeleteClick = (categoryIndex: number, websiteIndex: number) => {
         setSelectedWebsite({ categoryIndex, websiteIndex, title: categories[categoryIndex].websites ? categories[categoryIndex].websites[websiteIndex].name : "" });
         setConfirmDeleteVisibleWebsite(true);
     };
@@ -104,12 +72,8 @@ const Manage: React.FC = () => {
         e.stopPropagation();
         if (selectedCategoryIndex !== null) {
             const categoryToDelete = categories[selectedCategoryIndex];
-            window.postMessage({
-                type: "DELETE_CHROME_BOOKMARK",
-                id: categoryToDelete.id
-            }, "*");
+            handleDeleteCategory(categoryToDelete.id);
         }
-
         setConfirmDeleteVisibleCategory(false);
     }
 
@@ -119,16 +83,11 @@ const Manage: React.FC = () => {
             const { categoryIndex, websiteIndex } = selectedWebsite;
             if (categories && categories[categoryIndex] && categories[categoryIndex].websites) {
                 const websiteToDelete = categories[categoryIndex].websites[websiteIndex];
-                window.postMessage({
-                    type: "DELETE_CHROME_BOOKMARK",
-                    id: websiteToDelete.id
-                }, "*");
+                handleDeleteWebsite(websiteToDelete.id);
             } else {
                 showToast("error", "Error deleting website");
             }
-
         }
-
         setConfirmDeleteVisibleWebsite(false);
     };
 
@@ -138,19 +97,10 @@ const Manage: React.FC = () => {
         setConfirmDeleteVisibleCategory(false);
     };
 
-    const handleAddWebsite = (categoryIndex: number, newWebsite: WebsiteI) => {
-        const category = categories[categoryIndex];
-        window.postMessage({
-            type: "CREATE_CHROME_BOOKMARK",
-            bookmark: { parentId: category.id, title: newWebsite.name, url: newWebsite.url }
-        }, "*");
-    };
-
     const handleOpenAll = (categoryIndex: number) => {
         if (typeof categoryIndex === "number" && categories[categoryIndex]?.websites) {
             const websites = categories[categoryIndex].websites;
             websites?.forEach(website => {
-                console.log(website.url);
                 logVisit(website.id);
                 window.open(website.url, "_blank");
             });
@@ -160,7 +110,6 @@ const Manage: React.FC = () => {
     }
 
     const handleCopyAll = (categoryIndex: number) => {
-        let copyText = "";
         if (typeof categoryIndex === "number" && categories[categoryIndex]?.websites) {
             const websites = categories[categoryIndex].websites;
 
@@ -173,12 +122,11 @@ const Manage: React.FC = () => {
 
             htmlTable += "</table>";
 
-            copyText = convert(htmlTable, {
+            const copyText = convert(htmlTable, {
                 wordwrap: 150,
                 tables: true,
             });
 
-            // Copy to clipboard
             navigator.clipboard.writeText(copyText)
                 .then(() => {
                     showToast("success", "Copied to clipboard successfully");
@@ -204,54 +152,6 @@ const Manage: React.FC = () => {
                     console.error("Could not copy text: ", err);
                 });
         }
-    };
-
-    useEffect(() => {
-        const handleBookmarkUpdate = async (event: MessageEvent) => {
-            if (event.data.type === "CHROME_BOOKMARKS_SYNC") {
-                if (syncTimeout.current !== null) {
-                    clearTimeout(syncTimeout.current);
-                    setSyncWrong(false);
-                }
-
-                const { categories } = await parseChromeBookmarks(event.data.bookmarks);
-                setCategories(categories);
-
-                showToast("success", "Bookmarks synced with Chrome");
-                setSyncLoading(false);
-            } else if (event.data.type === "CHROME_BOOKMARK_UPDATED") {
-                showToast("success", "Bookmark updated successfully");
-                window.postMessage({ source: "web-space", type: "TRIGGER_CHROME_SYNC" }, "*");
-            } else if (event.data.type === "CHROME_BOOKMARK_DELETED") {
-                showToast("success", "Bookmark deleted successfully");
-                window.postMessage({ source: "web-space", type: "TRIGGER_CHROME_SYNC" }, "*");
-            } else if (event.data.type === "CHROME_BOOKMARK_CREATED") {
-                showToast("success", "Bookmark created successfully");
-                window.postMessage({ source: "web-space", type: "TRIGGER_CHROME_SYNC" }, "*");
-            }
-        };
-
-        window.addEventListener('message', handleBookmarkUpdate);
-
-        return () => {
-            window.removeEventListener('message', handleBookmarkUpdate);
-            if (syncTimeout.current !== null) {
-                clearTimeout(syncTimeout.current);
-            }
-        };
-    }, []);
-
-    const triggerSync = () => {
-        setSyncLoading(true);
-        setSyncWrong(false);
-
-        syncTimeout.current = setTimeout(() => {
-            setSyncWrong(true);
-            setSyncLoading(false);
-            showToast("error", "Please check the Extension is installed in Chrome");
-        }, 4000);
-
-        window.postMessage({ source: "web-space", type: "TRIGGER_CHROME_SYNC" }, "*");
     };
 
     const customHeader = `custom-header ${theme === 'theme-light' && 'dark'}`;
@@ -319,7 +219,7 @@ const Manage: React.FC = () => {
                                     <Button
                                         className='bg-danger border-danger text-white custom-button'
                                         icon="pi pi-trash text-sm"
-                                        onClick={() => handleWebsiteDelete(data.no, options.rowIndex)}
+                                        onClick={() => handleWebsiteDeleteClick(data.no, options.rowIndex)}
                                     />
                                 </>
                             )}
@@ -394,7 +294,7 @@ const Manage: React.FC = () => {
                                     <Button
                                         className='bg-danger border-danger text-white custom-button'
                                         icon="pi pi-trash font-semibold text-sm"
-                                        onClick={() => handleDeleteCategory(options.rowIndex)}
+                                        onClick={() => handleDeleteCategoryClick(options.rowIndex)}
                                     />
                                 </>
                             )}
