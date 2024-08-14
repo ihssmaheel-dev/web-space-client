@@ -35,3 +35,10 @@ export interface ChromeBookmark {
 export interface WebsiteInfoMap {
     iconUrl: string;
 }
+
+export interface SelectedWebsite {
+    categoryIndex: number;
+    websiteIndex: number;
+    title?: string;
+    website?: WebsiteI;
+}
